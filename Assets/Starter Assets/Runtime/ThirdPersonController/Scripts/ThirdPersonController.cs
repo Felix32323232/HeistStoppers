@@ -128,14 +128,14 @@ namespace StarterAssets
             // get a reference to our main camera
             if (_mainCamera == null)
             {
-                _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+                FindMainCamera();
             }
         }
 
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
-            
+
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
@@ -164,6 +164,11 @@ namespace StarterAssets
         private void LateUpdate()
         {
             CameraRotation();
+        }
+
+        public void FindMainCamera()
+        {
+            _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
         }
 
         private void AssignAnimationIDs()
@@ -376,7 +381,7 @@ namespace StarterAssets
                 if (FootstepAudioClips.Length > 0)
                 {
                     var index = Random.Range(0, FootstepAudioClips.Length);
-                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.position, FootstepAudioVolume);
                 }
             }
         }
@@ -385,8 +390,10 @@ namespace StarterAssets
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
-                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.position, FootstepAudioVolume);
             }
         }
+
+
     }
 }
