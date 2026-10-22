@@ -33,6 +33,14 @@ namespace StarterAssets
 
 			// Apply the push and take strength into account
 			body.AddForce(pushDir * strength, ForceMode.Impulse);
-		}
-	}
+
+            // Let the player interact with non-pushable objects (like walls) even if they have a rigidbody, but don't push them
+            if (body.isKinematic)
+            {
+                
+                // For example:
+                // body.GetComponent<YourInteractableScript>()?.Interact();
+            }
+        }
+    }
 }
