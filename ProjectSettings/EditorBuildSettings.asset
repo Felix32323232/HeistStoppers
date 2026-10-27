@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Exercise.unity
     guid: fb3a453f9d604404e87b06cf3928da42
+  - enabled: 1
+    path: Assets/Scenes/Lobby.unity
+    guid: 9ef6eaf5cf8a87c4ba8f5788f886c31a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
