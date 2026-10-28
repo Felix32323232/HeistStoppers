@@ -57,7 +57,7 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _CastShadows: 1
-    - _Cull: 2
+    - _Cull: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _Edge: 0.01
