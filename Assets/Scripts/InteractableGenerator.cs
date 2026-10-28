@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections;
 using UnityEngine;
 
@@ -15,10 +14,11 @@ public class InteractableGenerator : MonoBehaviour
         {
 
             Instantiate(Interactable_Prefab, SpawnPoints[i].transform.position, SpawnPoints[i].transform.rotation);
-            
+            float espera = Random.Range(tSpawnMin, tSpawnMax);
+            yield return new WaitForSeconds(espera);
         }
-        float espera = Random.Range( tSpawnMin, tSpawnMax);
-        yield return new WaitForSeconds(espera); 
+        
+        yield return new WaitForSeconds(5); 
         Debug.Log("Resume Coroutine");
     }
     void Start()
