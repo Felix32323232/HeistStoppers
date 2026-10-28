@@ -374,6 +374,7 @@ GameObject:
   - component: {fileID: -5150382694855448622}
   - component: {fileID: 1514356887726118867}
   - component: {fileID: 8324263467229737493}
+  - component: {fileID: 716554953677607470}
   m_Layer: 8
   m_Name: PlayerArmature_Networked
   m_TagString: Player
@@ -636,7 +637,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1510027669
+  GlobalObjectIdHash: 2392477903
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -782,6 +783,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PLayerID_TEMP
   playerId: 1
+--- !u!114 &716554953677607470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1799843532389728797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17c0be0002d2e86418ea925ed9352b96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTraSearchPlayerscker
+  ShowTopMostFoldoutHeaderGroup: 1
+  toggleKey: 113
+  highlightMaterial: {fileID: 2100000, guid: 28d743a3d1fe5b7468af470b8ea56868, type: 2}
+  highlightColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &1876584082386406989
 GameObject:
   m_ObjectHideFlags: 0
