@@ -11,6 +11,8 @@ public class PlayerInteractor : NetworkBehaviour
     float held;
     bool completed;
 
+    PlayerIdentity identity;
+
     public override void OnNetworkSpawn()
     {
         if (!IsOwner)
@@ -18,6 +20,7 @@ public class PlayerInteractor : NetworkBehaviour
             enabled = false;
             return;
         }
+        identity = GetComponent<PlayerIdentity>();
 
         ui = InteractionUI.Instance;
         ui.Hide();
@@ -33,6 +36,8 @@ public class PlayerInteractor : NetworkBehaviour
         if (!IsOwner || ui == null) return;
         if (!other.TryGetComponent(out Interactable i)) return;
 
+        if (identity == null || i.requiredPlayerId != identity.playerId)
+            return;
         current = i;
         ResetHold();
         ui.Show(i.prompt);

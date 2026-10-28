@@ -373,6 +373,7 @@ GameObject:
   - component: {fileID: 1799985642249433919}
   - component: {fileID: -5150382694855448622}
   - component: {fileID: 1514356887726118867}
+  - component: {fileID: 8324263467229737493}
   m_Layer: 8
   m_Name: PlayerArmature_Networked
   m_TagString: Player
@@ -635,7 +636,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2392477903
+  GlobalObjectIdHash: 1510027669
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -765,11 +766,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bacc44acffd5ec47b622989ff78ff48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractScript
+  ShowTopMostFoldoutHeaderGroup: 1
   interactKey: 101
-  promptRoot: {fileID: 0}
-  promptText: {fileID: 0}
-  fillImage: {fileID: 0}
   cam: {fileID: 0}
+--- !u!114 &8324263467229737493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1799843532389728797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2a2ed0d870275644b9f12beefe14e6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PLayerID_TEMP
+  playerId: 1
 --- !u!1 &1876584082386406989
 GameObject:
   m_ObjectHideFlags: 0
