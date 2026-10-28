@@ -372,6 +372,7 @@ GameObject:
   - component: {fileID: -8716361237584794343}
   - component: {fileID: 1799985642249433919}
   - component: {fileID: -5150382694855448622}
+  - component: {fileID: 1514356887726118867}
   m_Layer: 8
   m_Name: PlayerArmature_Networked
   m_TagString: Player
@@ -752,6 +753,23 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 1
   AnimatorParametersExpanded: 0
+--- !u!114 &1514356887726118867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1799843532389728797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bacc44acffd5ec47b622989ff78ff48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractScript
+  interactKey: 101
+  promptRoot: {fileID: 0}
+  promptText: {fileID: 0}
+  fillImage: {fileID: 0}
+  cam: {fileID: 0}
 --- !u!1 &1876584082386406989
 GameObject:
   m_ObjectHideFlags: 0
