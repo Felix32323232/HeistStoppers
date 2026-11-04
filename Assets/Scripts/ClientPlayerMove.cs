@@ -22,6 +22,7 @@ namespace NetcodeDemo
             m_PlayerInput.enabled = false;
             m_ThirdPersonController.enabled = false;
             m_CharacterController.enabled = false;
+            Cursor.visible = false;
         }
 
         public override void OnNetworkSpawn()
