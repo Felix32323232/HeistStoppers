@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 using System.Collections;
 using Unity.Netcode;
 [RequireComponent(typeof(Collider))]
@@ -9,9 +8,9 @@ public class Interactable : NetworkBehaviour
     public float holdTime = 1.5f;
     public float destroyTime = 5f;
     public Transform promptAnchor;
-    public int requiredPlayerId; //id que tiene que tener el player para que funcione el interactable
-    public UnityEvent onInteract;
-    
+    //public int requiredPlayerId; //id que tiene que tener el player para que funcione el interactable
+    public NetworkVariable<int> requiredPlayerId = new NetworkVariable<int>(1);
+
 
     public void contadormas()
     {
@@ -37,5 +36,10 @@ public class Interactable : NetworkBehaviour
     {
         if (!IsServer) return;
             StartCoroutine(DestroyAfterTime());
+    }
+    public void InteractuarNet()
+    {
+      ManagerPuntuacion.Instance.Sumar();
+        GetComponent<NetworkObject>().Despawn();
     }
 }

@@ -2674,8 +2674,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1759976757}
-  - component: {fileID: 1759976756}
   - component: {fileID: 1759976758}
+  - component: {fileID: 1759976756}
   m_Layer: 0
   m_Name: GeneradorInteractuables
   m_TagString: Untagged
