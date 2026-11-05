@@ -33,7 +33,7 @@ public class Interactable : NetworkBehaviour
         //Destroy(gameObject);
         GetComponent<NetworkObject>().Despawn();
     }
-    void Start()
+    public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
             StartCoroutine(DestroyAfterTime());

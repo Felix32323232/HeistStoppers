@@ -23,7 +23,7 @@ public class InteractableGenerator : NetworkBehaviour
         yield return new WaitForSeconds(5); 
         Debug.Log("Resume Coroutine");
     }
-    void Start()
+    public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
         StartCoroutine(Spawns());
