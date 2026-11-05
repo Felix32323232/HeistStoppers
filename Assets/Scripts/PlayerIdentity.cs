@@ -1,6 +1,7 @@
 using UnityEngine;
-
-public class PlayerIdentity : MonoBehaviour
+using Unity.Netcode;
+public class PlayerIdentity : NetworkBehaviour
 {
-    public int playerId;
+    //public int playerId;
+    public NetworkVariable<int> playerId = new NetworkVariable<int>(0);
 }

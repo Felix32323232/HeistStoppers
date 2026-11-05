@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
-
-public class InteractableGenerator : MonoBehaviour
+using Unity.Netcode;
+public class InteractableGenerator : NetworkBehaviour
 {
     public GameObject[] SpawnPoints;
     public GameObject Interactable_Prefab;
@@ -13,7 +13,9 @@ public class InteractableGenerator : MonoBehaviour
         for (int i = 0; i < SpawnPoints.Length; i++)
         {
 
-            Instantiate(Interactable_Prefab, SpawnPoints[i].transform.position, SpawnPoints[i].transform.rotation);
+            GameObject cajaNueva = Instantiate(Interactable_Prefab, SpawnPoints[i].transform.position, SpawnPoints[i].transform.rotation);
+            cajaNueva.GetComponent<NetworkObject>().Spawn();
+            //habria que meterlos en una lista si queremos tenerlos mas localizados
             float espera = Random.Range(tSpawnMin, tSpawnMax);
             yield return new WaitForSeconds(espera);
         }
@@ -21,8 +23,9 @@ public class InteractableGenerator : MonoBehaviour
         yield return new WaitForSeconds(5); 
         Debug.Log("Resume Coroutine");
     }
-    void Start()
+    public override void OnNetworkSpawn()
     {
+        if (!IsServer) return;
         StartCoroutine(Spawns());
     }
 }

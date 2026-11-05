@@ -36,7 +36,7 @@ public class PlayerInteractor : NetworkBehaviour
         if (!IsOwner || ui == null) return;
         if (!other.TryGetComponent(out Interactable i)) return;
 
-        if (identity == null || i.requiredPlayerId != identity.playerId)
+        if (identity == null || i.requiredPlayerId.Value != identity.playerId.Value)
             return;
         current = i;
         ResetHold();
@@ -65,7 +65,8 @@ public class PlayerInteractor : NetworkBehaviour
                 if (held >= current.holdTime)
                 {
                     completed = true;
-                    current.onInteract.Invoke();
+                    //current.onInteract.Invoke();
+                    InteractuarServerRpc(current.GetComponent<NetworkObject>());
                 }
             }
         }
@@ -104,5 +105,20 @@ public class PlayerInteractor : NetworkBehaviour
         current = null;
         ResetHold();
         if (ui != null) ui.Hide();
+    }
+
+    [ServerRpc]
+    private void InteractuarServerRpc(NetworkObjectReference interactableReference)
+    {
+        
+        if (interactableReference.TryGet(out NetworkObject netObj))
+        {
+            
+            if (netObj.TryGetComponent(out Interactable i))
+            {
+                
+                i.InteractuarNet();
+            }
+        }
     }
 }
