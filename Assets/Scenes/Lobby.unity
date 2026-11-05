@@ -1277,6 +1277,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1169490330
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 2204209674
+      objectReference: {fileID: 0}
     - target: {fileID: 4922851687821443503, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
       propertyPath: destroyTime
       value: 60
@@ -1386,6 +1402,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 4181500135
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171497569095483160, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 2204209674
+      objectReference: {fileID: 0}
     - target: {fileID: 4922851687821443503, guid: 30015895bbff81340b1b01dda5b36382, type: 3}
       propertyPath: destroyTime
       value: 60

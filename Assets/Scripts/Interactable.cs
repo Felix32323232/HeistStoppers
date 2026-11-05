@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
+using Unity.Netcode;
 [RequireComponent(typeof(Collider))]
-public class Interactable : MonoBehaviour
+public class Interactable : NetworkBehaviour
 {
     public string prompt = "Interactuar";
     public float holdTime = 1.5f;
@@ -29,10 +30,12 @@ public class Interactable : MonoBehaviour
     {
         yield return new WaitForSeconds(destroyTime);
         ManagerPuntuacion.Instance.Restar();
-        Destroy(gameObject);
+        //Destroy(gameObject);
+        GetComponent<NetworkObject>().Despawn();
     }
     void Start()
     {
-        StartCoroutine(DestroyAfterTime());
+        if (!IsServer) return;
+            StartCoroutine(DestroyAfterTime());
     }
 }
