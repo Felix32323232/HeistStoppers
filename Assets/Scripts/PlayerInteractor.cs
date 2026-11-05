@@ -36,7 +36,7 @@ public class PlayerInteractor : NetworkBehaviour
         if (!IsOwner || ui == null) return;
         if (!other.TryGetComponent(out Interactable i)) return;
 
-        if (identity == null || i.requiredPlayerId != identity.playerId)
+        if (identity == null || i.requiredPlayerId.Value != identity.playerId.Value)
             return;
         current = i;
         ResetHold();
@@ -117,7 +117,7 @@ public class PlayerInteractor : NetworkBehaviour
             if (netObj.TryGetComponent(out Interactable i))
             {
                 
-                i.onInteract.Invoke();
+                i.InteractuarNet();
             }
         }
     }
