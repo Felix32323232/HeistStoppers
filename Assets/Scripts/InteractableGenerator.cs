@@ -7,7 +7,7 @@ public class InteractableGenerator : NetworkBehaviour
     public GameObject Interactable_Prefab;
     public float tSpawnMin = 5;
     public float tSpawnMax = 5;
-    
+    public bool bucleInfinito = true;
     IEnumerator Spawns()
     {
         for (int i = 0; i < SpawnPoints.Length; i++)
@@ -26,6 +26,18 @@ public class InteractableGenerator : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
+
+        if (Interactable_Prefab == null)
+        {
+            Debug.LogError("[InteractableGenerator] Falta asignar Interactable_Prefab en el Inspector.");
+            return;
+        }
+
+        if (SpawnPoints == null || SpawnPoints.Length == 0)
+        {
+            Debug.LogError("[InteractableGenerator] El array SpawnPoints está vacío.");
+            return;
+        }
         StartCoroutine(Spawns());
     }
 }
