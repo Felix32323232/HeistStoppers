@@ -40,6 +40,7 @@ public class InteractableGenerator : NetworkBehaviour
 
     IEnumerator Spawns()
     {
+        yield return new WaitUntil(() => LobbyManager.Instance != null && LobbyManager.Instance.unlocked.Value);
         do
         {
             for (int i = 0; i < spawnPoints.Length; i++)
