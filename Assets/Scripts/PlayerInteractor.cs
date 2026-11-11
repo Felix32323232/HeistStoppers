@@ -117,15 +117,15 @@ public class PlayerInteractor : NetworkBehaviour
     [ServerRpc]
     private void InteractuarServerRpc(NetworkObjectReference interactableReference)
     {
-        
-        if (interactableReference.TryGet(out NetworkObject netObj))
+        if (interactableReference.TryGet(out NetworkObject netObj) &&
+            netObj.TryGetComponent(out Interactable i))
         {
             
-            if (netObj.TryGetComponent(out Interactable i))
+            if (i.requiredPlayerId.Value == 0 || i.requiredPlayerId.Value == identity.playerId.Value)
             {
-                
                 i.InteractuarNet();
             }
         }
     }
+
 }
