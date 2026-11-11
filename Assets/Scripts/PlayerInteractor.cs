@@ -10,7 +10,11 @@ public class PlayerInteractor : NetworkBehaviour
     Interactable current;
     float held;
     bool completed;
-
+    float needleAngle, zoneStart, zoneDeg;
+    bool skillCheckActive;
+    int successes;
+    float nextAttemptTime;
+    float mashProgress;
     bool hasTarget;
 
     PlayerIdentity identity;
@@ -62,56 +66,109 @@ public class PlayerInteractor : NetworkBehaviour
 
     void Update()
     {
-        // Objetivo destruido/despawneado o desactivado: limpiar y ocultar
         if (hasTarget && (current == null || !current.isActiveAndEnabled))
         {
             ClearCurrent();
             return;
         }
-
         if (current == null) return;
 
+        switch (current.type)
+        {
+            case Interactable.InteractionType.Hold: UpdateHold(); break;
+            case Interactable.InteractionType.SkillCheck: UpdateSkillCheck(); break;
+            case Interactable.InteractionType.Mash: UpdateMash(); break;
+        }
+    }
+
+    void Complete()
+    {
+        InteractuarServerRpc(current.GetComponent<NetworkObject>());
+        ClearCurrent();
+    }
+
+    void UpdateHold()
+    {
         if (Input.GetKey(interactKey))
         {
-            if (!completed)
-            {
-                held += Time.deltaTime;
-                if (held >= current.holdTime)
-                {
-                    completed = true;
-                    InteractuarServerRpc(current.GetComponent<NetworkObject>());
-                    ClearCurrent();   // oculta el prompt y suelta el objetivo
-                    return;
-                }
-            }
+            held += Time.deltaTime;
+            if (held >= current.holdTime) { Complete(); return; }
         }
-        else
-        {
-            ResetHold();
-        }
+        else held = 0f;
 
         ui.SetFill(Mathf.Clamp01(held / current.holdTime));
     }
 
-    void LateUpdate()
+    void UpdateMash()
     {
-        if (current == null) return;
+        if (Input.GetKeyDown(interactKey))
+            mashProgress += 1f / current.mashPresses;
 
-        if (cam == null) cam = Camera.main;
-        if (cam == null) return;
+        mashProgress = Mathf.Clamp01(mashProgress - current.mashDecayPerSecond * Time.deltaTime);
+        ui.SetFill(mashProgress);
 
-        Vector3 screenPos = cam.WorldToScreenPoint(current.PromptPosition);
-        bool visible = screenPos.z > 0f;
+        if (mashProgress >= 1f) Complete();
+    }
 
-        ui.SetVisible(visible);
-        if (visible) ui.SetScreenPosition(screenPos);
+    void UpdateSkillCheck()
+    {
+        if (!skillCheckActive)
+        {
+            if (Time.time >= nextAttemptTime && Input.GetKeyDown(interactKey))
+                StartSkillCheck();
+            return;
+        }
+
+        needleAngle += 360f / current.skillCheckRotationTime * Time.deltaTime;
+        ui.SetNeedle(needleAngle);
+
+        bool pressed = Input.GetKeyDown(interactKey);
+        bool lapEnded = needleAngle >= 360f;   // dejarlo pasar cuenta como fallo
+        if (!pressed && !lapEnded) return;
+
+        bool hit = pressed && needleAngle >= zoneStart && needleAngle <= zoneStart + zoneDeg;
+        EndSkillCheck();
+
+        if (hit)
+        {
+            successes++;
+            if (successes >= current.skillChecksRequired) { Complete(); return; }
+            StartSkillCheck();   // siguiente check de la serie
+        }
+        else
+        {
+            successes = 0;
+            nextAttemptTime = Time.time + current.failCooldown;
+        }
+    }
+
+    void StartSkillCheck()
+    {
+        skillCheckActive = true;
+        needleAngle = 0f;
+        zoneDeg = current.skillCheckZoneSize * 360f;
+        // empieza lejos de la aguja y sin cruzar el 0 para evitar el wrap
+        zoneStart = Random.Range(60f, 360f - zoneDeg - 10f);
+        ui.ShowSkillCheck(zoneStart, current.skillCheckZoneSize);
+    }
+
+    void EndSkillCheck()
+    {
+        skillCheckActive = false;
+        ui.HideSkillCheck();
     }
 
     void ResetHold()
     {
         held = 0f;
-        completed = false;
-        if (ui != null) ui.SetFill(0f);
+        mashProgress = 0f;
+        successes = 0;
+        skillCheckActive = false;
+        if (ui != null)
+        {
+            ui.SetFill(0f);
+            ui.HideSkillCheck();
+        }
     }
 
     [ServerRpc]

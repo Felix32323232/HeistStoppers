@@ -9,6 +9,27 @@ public class InteractionUI : MonoBehaviour
     [SerializeField] GameObject root;      // PromptRoot
     [SerializeField] TMP_Text promptText;
     [SerializeField] Image fillImage;      // CircleFill
+    [SerializeField] Image skillZoneImage;
+    [SerializeField] RectTransform needle;     // apuntando hacia arriba, pivot en el centro del círculo
+    [SerializeField] GameObject skillCheckRoot;
+
+    public void ShowSkillCheck(float zoneStartDeg, float zoneSize01)
+    {
+        skillZoneImage.fillAmount = zoneSize01;
+        skillZoneImage.rectTransform.localRotation = Quaternion.Euler(0, 0, -zoneStartDeg);
+        SetNeedle(0f);
+        skillCheckRoot.SetActive(true);
+    }
+
+    public void SetNeedle(float angleDeg)
+    {
+        needle.localRotation = Quaternion.Euler(0, 0, -angleDeg);
+    }
+
+    public void HideSkillCheck()
+    {
+        skillCheckRoot.SetActive(false);
+    }
 
     void Awake()
     {

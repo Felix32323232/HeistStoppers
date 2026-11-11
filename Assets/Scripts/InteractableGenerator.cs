@@ -1,43 +1,65 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
+
 public class InteractableGenerator : NetworkBehaviour
 {
-    public GameObject[] SpawnPoints;
-    public GameObject Interactable_Prefab;
-    public float tSpawnMin = 5;
-    public float tSpawnMax = 5;
+    public Transform[] spawnPoints;
+    public GameObject[] interactablePrefabs;   // un prefab por tipo: Hold, SkillCheck, Mash
+    public float tSpawnMin = 5f;
+    public float tSpawnMax = 5f;
     public bool bucleInfinito = true;
-    IEnumerator Spawns()
-    {
-        for (int i = 0; i < SpawnPoints.Length; i++)
-        {
 
-            GameObject cajaNueva = Instantiate(Interactable_Prefab, SpawnPoints[i].transform.position, SpawnPoints[i].transform.rotation);
-            cajaNueva.GetComponent<NetworkObject>().Spawn();
-            //habria que meterlos en una lista si queremos tenerlos mas localizados
-            float espera = Random.Range(tSpawnMin, tSpawnMax);
-            yield return new WaitForSeconds(espera);
-        }
-        
-        yield return new WaitForSeconds(5); 
-        Debug.Log("Resume Coroutine");
-    }
+    NetworkObject[] ocupantes;   // qué caja hay ahora en cada punto
+    Coroutine routine;
+
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
 
-        if (Interactable_Prefab == null)
+        if (interactablePrefabs == null || interactablePrefabs.Length == 0)
         {
-            Debug.LogError("[InteractableGenerator] Falta asignar Interactable_Prefab en el Inspector.");
+            Debug.LogError("[InteractableGenerator] Faltan prefabs en interactablePrefabs.");
             return;
         }
 
-        if (SpawnPoints == null || SpawnPoints.Length == 0)
+        if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            Debug.LogError("[InteractableGenerator] El array SpawnPoints está vacío.");
+            Debug.LogError("[InteractableGenerator] El array spawnPoints está vacío.");
             return;
         }
-        StartCoroutine(Spawns());
+
+        ocupantes = new NetworkObject[spawnPoints.Length];
+        routine = StartCoroutine(Spawns());
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (routine != null) StopCoroutine(routine);
+    }
+
+    IEnumerator Spawns()
+    {
+        do
+        {
+            for (int i = 0; i < spawnPoints.Length; i++)
+            {
+                // si la caja de este punto sigue en pie, no spawneamos otra
+                if (ocupantes[i] != null && ocupantes[i].IsSpawned) continue;
+
+                var prefab = interactablePrefabs[Random.Range(0, interactablePrefabs.Length)];
+                var go = Instantiate(prefab, spawnPoints[i].position, spawnPoints[i].rotation);
+                var netObj = go.GetComponent<NetworkObject>();
+                // aquí asignarías requiredPlayerId antes del Spawn
+                netObj.Spawn();
+                ocupantes[i] = netObj;
+
+                yield return new WaitForSeconds(Random.Range(tSpawnMin, tSpawnMax));
+            }
+
+            // pausa entre pasadas para no recorrer los puntos cada frame
+            yield return new WaitForSeconds(1f);
+        }
+        while (bucleInfinito);
     }
 }
