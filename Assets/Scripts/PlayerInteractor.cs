@@ -11,6 +11,8 @@ public class PlayerInteractor : NetworkBehaviour
     float held;
     bool completed;
 
+    bool hasTarget;
+
     PlayerIdentity identity;
 
     public override void OnNetworkSpawn()
@@ -35,12 +37,20 @@ public class PlayerInteractor : NetworkBehaviour
     {
         if (!IsOwner || ui == null) return;
         if (!other.TryGetComponent(out Interactable i)) return;
+        if (identity == null || i.requiredPlayerId.Value != identity.playerId.Value) return;
 
-        if (identity == null || i.requiredPlayerId.Value != identity.playerId.Value)
-            return;
         current = i;
+        hasTarget = true;
         ResetHold();
         ui.Show(i.prompt);
+    }
+
+    void ClearCurrent()
+    {
+        current = null;
+        hasTarget = false;
+        ResetHold();
+        if (ui != null) ui.Hide();
     }
 
     void OnTriggerExit(Collider other)
@@ -52,8 +62,12 @@ public class PlayerInteractor : NetworkBehaviour
 
     void Update()
     {
-        if (current != null && !current.isActiveAndEnabled)
+        // Objetivo destruido/despawneado o desactivado: limpiar y ocultar
+        if (hasTarget && (current == null || !current.isActiveAndEnabled))
+        {
             ClearCurrent();
+            return;
+        }
 
         if (current == null) return;
 
@@ -65,8 +79,9 @@ public class PlayerInteractor : NetworkBehaviour
                 if (held >= current.holdTime)
                 {
                     completed = true;
-                    //current.onInteract.Invoke();
                     InteractuarServerRpc(current.GetComponent<NetworkObject>());
+                    ClearCurrent();   // oculta el prompt y suelta el objetivo
+                    return;
                 }
             }
         }
@@ -75,8 +90,7 @@ public class PlayerInteractor : NetworkBehaviour
             ResetHold();
         }
 
-        if (current != null)
-            ui.SetFill(Mathf.Clamp01(held / current.holdTime));
+        ui.SetFill(Mathf.Clamp01(held / current.holdTime));
     }
 
     void LateUpdate()
@@ -98,13 +112,6 @@ public class PlayerInteractor : NetworkBehaviour
         held = 0f;
         completed = false;
         if (ui != null) ui.SetFill(0f);
-    }
-
-    void ClearCurrent()
-    {
-        current = null;
-        ResetHold();
-        if (ui != null) ui.Hide();
     }
 
     [ServerRpc]
