@@ -102,7 +102,7 @@ public class PlayerInteractor : NetworkBehaviour
     void UpdateMash()
     {
         if (Input.GetKeyDown(interactKey))
-            mashProgress += 1f / current.mashPresses;
+            mashProgress += 3f / current.mashPresses;
 
         mashProgress = Mathf.Clamp01(mashProgress - current.mashDecayPerSecond * Time.deltaTime);
         ui.SetFill(mashProgress);
@@ -123,8 +123,7 @@ public class PlayerInteractor : NetworkBehaviour
         ui.SetNeedle(needleAngle);
 
         bool pressed = Input.GetKeyDown(interactKey);
-        bool lapEnded = needleAngle >= 360f;   // dejarlo pasar cuenta como fallo
-        if (!pressed && !lapEnded) return;
+        if (!pressed) return;
 
         bool hit = pressed && needleAngle >= zoneStart && needleAngle <= zoneStart + zoneDeg;
         EndSkillCheck();

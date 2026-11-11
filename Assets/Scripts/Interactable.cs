@@ -13,7 +13,7 @@ public class Interactable : NetworkBehaviour
     public float skillCheckRotationTime = 1.5f; // segundos por vuelta
     [Range(0.05f, 0.4f)] public float skillCheckZoneSize = 0.12f; // fracción del círculo
     public int skillChecksRequired = 1;
-    public float failCooldown = 0.75f;
+    public float failCooldown = 0.1f;
 
     [Header("Machacar")]
     public int mashPresses = 15;
