@@ -5,6 +5,7 @@ using Unity.Netcode;
 public class Interactable : NetworkBehaviour
 {
     public enum InteractionType { Hold, SkillCheck, Mash }
+    public NetworkVariable<ulong> taskId = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     [Header("Tipo")]
     public InteractionType type = InteractionType.Hold;
@@ -22,9 +23,8 @@ public class Interactable : NetworkBehaviour
     public float holdTime = 1.5f;
     public float destroyTime = 5f;
     public Transform promptAnchor;
-    //public int requiredPlayerId; 
     //id que tiene que tener el player para que funcione el interactable
-    public NetworkVariable<int> requiredPlayerId = new NetworkVariable<int>(1);
+
 
 
     public void contadormas()
@@ -50,7 +50,7 @@ public class Interactable : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
-            StartCoroutine(DestroyAfterTime());
+        StartCoroutine(DestroyAfterTime());
     }
     public virtual void InteractuarNet()
     {

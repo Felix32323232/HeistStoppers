@@ -36,8 +36,6 @@ public class NPCInteractable : Interactable
     {
         canBeServed.OnValueChanged += OnServableChanged;
         Apply(canBeServed.Value);
-
-        if (IsServer) requiredPlayerId.Value = assignedPlayerId;
     }
 
     public override void OnNetworkDespawn()

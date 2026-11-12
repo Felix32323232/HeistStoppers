@@ -79,10 +79,10 @@ public class LobbyManager : NetworkBehaviour
         while (ids.ContainsKey(clientId))
         {
             if (NetworkManager.ConnectedClients.TryGetValue(clientId, out var client)
-                && client.PlayerObject != null
-                && client.PlayerObject.TryGetComponent(out PlayerIdentity identity))
+                && client.PlayerObject != null)
+         
             {
-                identity.playerId.Value = id;
+               
                 yield break;
             }
             yield return null;

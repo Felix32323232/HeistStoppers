@@ -1,6 +1,6 @@
 using System.Collections;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
 
 public class InteractableGenerator : NetworkBehaviour
 {
@@ -47,11 +47,15 @@ public class InteractableGenerator : NetworkBehaviour
             {
                 // si la caja de este punto sigue en pie, no spawneamos otra
                 if (ocupantes[i] != null && ocupantes[i].IsSpawned) continue;
+                var connectedClientIds = NetworkManager.Singleton.ConnectedClientsIds;
+                if (connectedClientIds.Count == 0) continue;
 
                 var prefab = interactablePrefabs[Random.Range(0, interactablePrefabs.Length)];
-                var go = Instantiate(prefab, spawnPoints[i].position, spawnPoints[i].rotation);
+                var go = Instantiate(prefab, spawnPoints[i].position, spawnPoints[i].rotation); // ej7
+                var interactable = go.GetComponent<Interactable>();
+                interactable.taskId.Value = connectedClientIds[Random.Range(0, connectedClientIds.Count)];
                 var netObj = go.GetComponent<NetworkObject>();
-                // aquí asignarías requiredPlayerId antes del Spawn
+
                 netObj.Spawn();
                 ocupantes[i] = netObj;
 
@@ -63,4 +67,6 @@ public class InteractableGenerator : NetworkBehaviour
         }
         while (bucleInfinito);
     }
+   
 }
+//Coger un numero de los connected clients para asignarlo a requiredPlayerId, y que solo ese jugador pueda interactuar con esa caja.

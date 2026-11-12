@@ -17,8 +17,6 @@ public class PlayerInteractor : NetworkBehaviour
     float mashProgress;
     bool hasTarget;
 
-    PlayerIdentity identity;
-
     public override void OnNetworkSpawn()
     {
         if (!IsOwner)
@@ -26,7 +24,6 @@ public class PlayerInteractor : NetworkBehaviour
             enabled = false;
             return;
         }
-        identity = GetComponent<PlayerIdentity>();
 
         ui = InteractionUI.Instance;
         ui.Hide();
@@ -41,8 +38,7 @@ public class PlayerInteractor : NetworkBehaviour
     {
         if (!IsOwner || ui == null) return;
         if (!other.TryGetComponent(out Interactable i)) return;
-        if (identity == null) return;
-        if (i.requiredPlayerId.Value != 0 && i.requiredPlayerId.Value != identity.playerId.Value) return;
+        if (i.taskId.Value != NetworkManager.Singleton.LocalClientId) return;
 
         current = i;
         hasTarget = true;
@@ -172,13 +168,14 @@ public class PlayerInteractor : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void InteractuarServerRpc(NetworkObjectReference interactableReference)
+    private void InteractuarServerRpc(
+        NetworkObjectReference interactableReference,
+        ServerRpcParams serverRpcParams = default)
     {
         if (interactableReference.TryGet(out NetworkObject netObj) &&
             netObj.TryGetComponent(out Interactable i))
         {
-            
-            if (i.requiredPlayerId.Value == 0 || i.requiredPlayerId.Value == identity.playerId.Value)
+            if (i.taskId.Value == serverRpcParams.Receive.SenderClientId)
             {
                 i.InteractuarNet();
             }
