@@ -16,6 +16,8 @@ public class NPCKnockback : NetworkBehaviour
 
     private Rigidbody rb;
     private Coroutine recoveryCoroutine;
+    public event System.Action KnockedBack;
+    public event System.Action Recovered;
 
     private void Awake()
     {
@@ -34,6 +36,7 @@ public class NPCKnockback : NetworkBehaviour
             direction * knockbackForce +
             Vector3.up * upwardForce;
 
+        KnockedBack?.Invoke();
         rb.AddForce(force, ForceMode.Impulse);
 
         if (recoveryCoroutine != null)
@@ -54,6 +57,7 @@ public class NPCKnockback : NetworkBehaviour
         Vector3 rotation = rb.rotation.eulerAngles;
         rb.rotation = Quaternion.Euler(0f, rotation.y, 0f);
 
+        Recovered?.Invoke();
         recoveryCoroutine = null;
     }
 }

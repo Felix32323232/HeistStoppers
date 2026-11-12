@@ -41,7 +41,8 @@ public class PlayerInteractor : NetworkBehaviour
     {
         if (!IsOwner || ui == null) return;
         if (!other.TryGetComponent(out Interactable i)) return;
-        if (identity == null || i.requiredPlayerId.Value != identity.playerId.Value) return;
+        if (identity == null) return;
+        if (i.requiredPlayerId.Value != 0 && i.requiredPlayerId.Value != identity.playerId.Value) return;
 
         current = i;
         hasTarget = true;

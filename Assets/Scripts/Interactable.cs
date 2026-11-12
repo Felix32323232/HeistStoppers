@@ -52,7 +52,7 @@ public class Interactable : NetworkBehaviour
         if (!IsServer) return;
             StartCoroutine(DestroyAfterTime());
     }
-    public void InteractuarNet()
+    public virtual void InteractuarNet()
     {
       ManagerPuntuacion.Instance.Sumar();
         GetComponent<NetworkObject>().Despawn();
