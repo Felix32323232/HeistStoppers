@@ -1,108 +1,241 @@
-using System.Globalization;
+
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerTraSearchPlayerscker : NetworkBehaviour
+public class SearchPlayers : NetworkBehaviour
 {
     [Header("Configuración")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Q;
+
+    [Header("Resaltado de jugadores")]
     [SerializeField] private Material highlightMaterial;
     [SerializeField] private Color highlightColor = Color.cyan;
 
-    private bool tracking = false;
+    [Header("Resaltado de interactuables")]
+    [SerializeField] private Material interactableHighlightMaterial;
+    [SerializeField] private Color interactableHighlightColor = Color.yellow;
 
-    // Guarda los materiales originales de cada jugador.
-    private class PlayerVisual
+    private bool tracking = false;
+    private InteractableGenerator generator;
+
+    private class HighlightVisual
     {
         public Renderer[] renderers;
         public Material[][] originalMaterials;
-        public Material highlightMaterial;
+        public Material materialInstance;
     }
 
-    private System.Collections.Generic.Dictionary<
-        ulong, PlayerVisual> highlightedPlayers =
-        new System.Collections.Generic.Dictionary<
-            ulong, PlayerVisual>();
+    private Dictionary<ulong, HighlightVisual> highlightedPlayers =
+        new Dictionary<ulong, HighlightVisual>();
+
+    private Dictionary<int, HighlightVisual> highlightedInteractables =
+        new Dictionary<int, HighlightVisual>();
 
     public override void OnNetworkSpawn()
     {
-        // Solo el jugador local puede controlar este sistema.
         if (!IsOwner)
         {
             enabled = false;
             return;
         }
+
+        generator = FindFirstObjectByType<InteractableGenerator>();
     }
 
     private void Update()
     {
-        if (!IsOwner) return;
+        if (!IsOwner)
+            return;
 
         if (Input.GetKeyDown(toggleKey))
         {
             tracking = !tracking;
 
-            if (tracking)
-                ShowAllPlayers();
-            else
+            if (!tracking)
+            {
                 HideAllPlayers();
+                HideAllInteractables();
+
+                Debug.Log("Visión especial desactivada.");
+            }
+            else
+            {
+                Debug.Log("Visión especial activada.");
+            }
         }
 
-        // Actualiza las posiciones mientras está activado.
-        if (tracking)
-            ShowPlayerPositions();
+        if (!tracking)
+            return;
+
+        UpdatePlayers();
+        UpdateInteractables();
     }
 
-    private void ShowAllPlayers()
+    // =====================================
+    // JUGADORES
+    // =====================================
+
+    private void UpdatePlayers()
     {
-        foreach (NetworkClient client
-                 in NetworkManager.Singleton.ConnectedClientsList)
+        if (NetworkManager.Singleton == null)
+            return;
+
+        HashSet<ulong> activePlayers = new HashSet<ulong>();
+
+        foreach (NetworkClient client in
+                 NetworkManager.Singleton.ConnectedClientsList)
         {
             NetworkObject playerObject = client.PlayerObject;
 
-            if (playerObject == null) continue;
+            if (playerObject == null)
+                continue;
 
-            // No aplicar el efecto a tu propio personaje.
             if (playerObject.OwnerClientId == OwnerClientId)
                 continue;
 
-            ApplyHighlight(playerObject);
+            ulong id = playerObject.OwnerClientId;
+            activePlayers.Add(id);
+
+            if (!highlightedPlayers.ContainsKey(id))
+            {
+                Renderer[] renderers =
+                    playerObject.GetComponentsInChildren<Renderer>(true);
+
+                HighlightVisual visual = CreateHighlight(
+                    renderers,
+                    highlightMaterial,
+                    highlightColor
+                );
+
+                if (visual != null)
+                    highlightedPlayers.Add(id, visual);
+            }
         }
 
-        Debug.Log("Seguimiento de jugadores activado.");
+        List<ulong> toRemove = new List<ulong>();
+
+        foreach (var pair in highlightedPlayers)
+        {
+            if (!activePlayers.Contains(pair.Key))
+                toRemove.Add(pair.Key);
+        }
+
+        foreach (ulong id in toRemove)
+        {
+            RestoreHighlight(highlightedPlayers[id]);
+            highlightedPlayers.Remove(id);
+        }
     }
 
+    // =====================================
+    // INTERACTUABLES
+    // =====================================
 
-    private void ApplyHighlight(NetworkObject playerObject)
+    private void UpdateInteractables()
     {
-        ulong id = playerObject.OwnerClientId;
-
-        if (highlightedPlayers.ContainsKey(id))
-            return;
-
-        if (highlightMaterial == null)
+        if (generator == null)
         {
-            Debug.LogWarning("Asigna el material Highlight_Player en el Inspector.");
-            return;
+            generator = FindFirstObjectByType<InteractableGenerator>();
+
+            if (generator == null)
+                return;
         }
 
-        Renderer[] renderers =
-            playerObject.GetComponentsInChildren<Renderer>(true);
+        HashSet<int> activePoints = new HashSet<int>();
 
-        if (renderers.Length == 0)
-            return;
+        Interactable[] tasks =
+            FindObjectsByType<Interactable>(FindObjectsSortMode.None);
 
-        PlayerVisual visual = new PlayerVisual();
+        foreach (Interactable task in tasks)
+        {
+            if (!task.IsSpawned)
+                continue;
+
+            // Solo tareas asignadas a este jugador.
+            if (task.taskId.Value != OwnerClientId)
+                continue;
+
+            int index = task.spawnPointIndex.Value;
+
+            if (index < 0)
+                continue;
+
+            InteractableSpawnPoint point =
+                generator.GetSpawnPoint(index);
+
+            if (point == null)
+                continue;
+
+            activePoints.Add(index);
+
+            if (highlightedInteractables.ContainsKey(index))
+                continue;
+
+            HighlightVisual visual = CreateHighlight(
+                point.ObjectRenderers,
+                interactableHighlightMaterial,
+                interactableHighlightColor
+            );
+
+            if (visual != null)
+            {
+                highlightedInteractables.Add(index, visual);
+
+                Debug.Log(
+                    "Interactuable resaltado: " + point.name
+                );
+            }
+        }
+
+        // Restaurar objetos cuyas tareas terminaron.
+        List<int> toRemove = new List<int>();
+
+        foreach (var pair in highlightedInteractables)
+        {
+            if (!activePoints.Contains(pair.Key))
+                toRemove.Add(pair.Key);
+        }
+
+        foreach (int index in toRemove)
+        {
+            RestoreHighlight(highlightedInteractables[index]);
+            highlightedInteractables.Remove(index);
+        }
+    }
+
+    // =====================================
+    // MATERIALES
+    // =====================================
+
+    private HighlightVisual CreateHighlight(
+        Renderer[] renderers,
+        Material sourceMaterial,
+        Color color)
+    {
+        if (sourceMaterial == null ||
+            renderers == null ||
+            renderers.Length == 0)
+        {
+            return null;
+        }
+
+        HighlightVisual visual = new HighlightVisual();
+
         visual.renderers = renderers;
         visual.originalMaterials = new Material[renderers.Length][];
 
-        // Crear una copia para este jugador, sin modificar el material original.
-        visual.highlightMaterial = new Material(highlightMaterial);
-        visual.highlightMaterial.color = highlightColor;
+        // Una instancia independiente para no modificar
+        // el material original del proyecto.
+        visual.materialInstance = new Material(sourceMaterial);
+        visual.materialInstance.color = color;
 
         for (int i = 0; i < renderers.Length; i++)
         {
             Renderer rend = renderers[i];
+
+            if (rend == null)
+                continue;
 
             visual.originalMaterials[i] = rend.sharedMaterials;
 
@@ -111,60 +244,65 @@ public class PlayerTraSearchPlayerscker : NetworkBehaviour
 
             for (int j = 0; j < newMaterials.Length; j++)
             {
-                newMaterials[j] = visual.highlightMaterial;
+                newMaterials[j] = visual.materialInstance;
             }
 
             rend.sharedMaterials = newMaterials;
         }
 
-        highlightedPlayers.Add(id, visual);
+        return visual;
     }
 
-
-    private void ShowPlayerPositions()
+    private void RestoreHighlight(HighlightVisual visual)
     {
-        foreach (NetworkClient client
-                 in NetworkManager.Singleton.ConnectedClientsList)
+        if (visual == null)
+            return;
+
+        for (int i = 0; i < visual.renderers.Length; i++)
         {
-            NetworkObject playerObject = client.PlayerObject;
+            Renderer rend = visual.renderers[i];
 
-            if (playerObject == null) continue;
+            if (rend == null ||
+                visual.originalMaterials[i] == null)
+                continue;
 
-            Vector3 pos = playerObject.transform.position;
-
-            Debug.Log(
-                $"Jugador {client.ClientId}: " +
-                $"X={pos.x:F1}, Y={pos.y:F1}, Z={pos.z:F1}");
+            rend.sharedMaterials = visual.originalMaterials[i];
         }
+
+        if (visual.materialInstance != null)
+            Destroy(visual.materialInstance);
     }
 
     private void HideAllPlayers()
     {
         foreach (var pair in highlightedPlayers)
-        {
-            PlayerVisual visual = pair.Value;
-
-            for (int i = 0;
-                 i < visual.renderers.Length; i++)
-            {
-                if (visual.renderers[i] != null)
-                {
-                    visual.renderers[i].sharedMaterials =
-                        visual.originalMaterials[i];
-                }
-            }
-
-            Destroy(visual.highlightMaterial);
-        }
+            RestoreHighlight(pair.Value);
 
         highlightedPlayers.Clear();
-        Debug.Log("Seguimiento de jugadores desactivado.");
+    }
+
+    private void HideAllInteractables()
+    {
+        foreach (var pair in highlightedInteractables)
+            RestoreHighlight(pair.Value);
+
+        highlightedInteractables.Clear();
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsOwner)
-            HideAllPlayers();
+        if (!IsOwner)
+            return;
+
+        HideAllPlayers();
+        HideAllInteractables();
+
+        tracking = false;
+    }
+
+    private void OnDestroy()
+    {
+        HideAllPlayers();
+        HideAllInteractables();
     }
 }
-

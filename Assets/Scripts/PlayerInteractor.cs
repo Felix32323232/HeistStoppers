@@ -34,17 +34,48 @@ public class PlayerInteractor : NetworkBehaviour
         if (IsOwner && ui != null) ui.Hide();
     }
 
+
     void OnTriggerEnter(Collider other)
     {
-        if (!IsOwner || ui == null) return;
-        if (!other.TryGetComponent(out Interactable i)) return;
-        if (i.taskId.Value != NetworkManager.Singleton.LocalClientId) return;
+        Debug.Log("TRIGGER DETECTADO: " + other.name);
+
+        if (!IsOwner)
+        {
+            Debug.LogWarning("NO SOY EL OWNER");
+            return;
+        }
+
+        if (ui == null)
+        {
+            Debug.LogError("INTERACTION UI ES NULL");
+            return;
+        }
+
+        if (!other.TryGetComponent(out Interactable i))
+        {
+            Debug.LogWarning("NO TIENE INTERACTABLE");
+            return;
+        }
+
+        Debug.Log(
+            "ID ASIGNADO: " + i.taskId.Value +
+            " | MI ID: " + NetworkManager.Singleton.LocalClientId
+        );
+
+        if (i.taskId.Value != NetworkManager.Singleton.LocalClientId)
+        {
+            Debug.LogWarning("ESTA TAREA NO ES MIA");
+            return;
+        }
+
+        Debug.Log("TAREA DETECTADA CORRECTAMENTE");
 
         current = i;
         hasTarget = true;
         ResetHold();
         ui.Show(i.prompt);
     }
+
 
     void ClearCurrent()
     {

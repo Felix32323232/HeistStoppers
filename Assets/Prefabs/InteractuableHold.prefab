@@ -39,7 +39,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.4616158, y: 0.5}
+  m_AnchoredPosition: {x: 6.66, y: 0.5}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!33 &7855040687701747969
@@ -75,7 +75,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: e3b40d2d8a8f4064f82dc8b0ec940dde, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -140,14 +140,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2202196692
+  GlobalObjectIdHash: 4153054859
   InScenePlacedSourceGlobalObjectIdHash: 2204209674
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
-  m_InScenePlaced: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -168,6 +168,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactable
   ShowTopMostFoldoutHeaderGroup: 1
+  taskId:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  spawnPointIndex:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
   type: 0
   skillCheckRotationTime: 1.5
   skillCheckZoneSize: 0.12
@@ -177,13 +187,14 @@ MonoBehaviour:
   mashDecayPerSecond: 0.3
   prompt: E para interactuar
   holdTime: 1.5
-  destroyTime: 5
+  destroyTime: 60
   promptAnchor: {fileID: 392113077359829820}
-  requiredPlayerId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 1
+  renderersObjetivo:
+  - {fileID: 6895559817293583216}
+  materialJugador1: {fileID: 2100000, guid: e6f6a08fac69fd941ba3863bc757dc75, type: 2}
+  materialJugador2: {fileID: 2100000, guid: 612556c54b353824399cbc63c118130f, type: 2}
+  materialJugador3: {fileID: 2100000, guid: eb28f338c99aa824884c6cb0d305488d, type: 2}
+  materialJugador4: {fileID: 2100000, guid: 41b6b3af471600e4cb2bb210c1e082dd, type: 2}
 --- !u!1 &6712042041652791110
 GameObject:
   m_ObjectHideFlags: 0

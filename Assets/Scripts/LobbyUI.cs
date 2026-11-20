@@ -1,3 +1,5 @@
+
+using System;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -6,19 +8,26 @@ using UnityEngine.UI;
 public class LobbyUI : MonoBehaviour
 {
     [Header("Relay")]
-    [SerializeField] RelayManager relayManager;
-    [SerializeField] string connectionType = "wss";
-    [Header("UI")]
-    [SerializeField] GameObject initButtons;
-    [SerializeField] GameObject joinButtons;
-    [SerializeField] Button hostButton;
-    [SerializeField] Button clientButton;
-    [SerializeField] Button backButton;
-    [SerializeField] Button joinPartyButton;
-    [SerializeField] TMP_Text hostCode;
+    [SerializeField] private RelayManager relayManager;
+    [SerializeField] private string connectionType = "wss";
+
+    [Header("Paneles")]
+    [SerializeField] private GameObject initButtons;
+    [SerializeField] private GameObject joinButtons;
+
+    [Header("Botones")]
+    [SerializeField] private Button hostButton;
+    [SerializeField] private Button clientButton;
+    [SerializeField] private Button backButton;
+    [SerializeField] private Button joinPartyButton;
+
+    [Header("Codigo Relay")]
+    [SerializeField] private TMP_Text codigoGenerado;
+    [SerializeField] private TMP_InputField codigoIntroducido;
+
     private bool toggleButtons = false;
 
-    void OnEnable()
+    private void OnEnable()
     {
         hostButton.onClick.AddListener(OnStartHostClickAsync);
         joinPartyButton.onClick.AddListener(OnStartClientClickAsync);
@@ -26,62 +35,109 @@ public class LobbyUI : MonoBehaviour
         backButton.onClick.AddListener(ToggleButtons);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
-        hostButton.onClick.RemoveAllListeners();
-        joinPartyButton.onClick.RemoveAllListeners();
-        clientButton.onClick.RemoveAllListeners();
-        backButton.onClick.RemoveAllListeners();
+        hostButton.onClick.RemoveListener(OnStartHostClickAsync);
+        joinPartyButton.onClick.RemoveListener(OnStartClientClickAsync);
+        clientButton.onClick.RemoveListener(ToggleButtons);
+        backButton.onClick.RemoveListener(ToggleButtons);
     }
 
     public async void OnStartHostClickAsync()
     {
         try
         {
-            hostButton.enabled = false;
-            initButtons.SetActive(false);
-            int maxPlayers = NetworkManager.Singleton.GetComponent<ConnectionApprovalHandler>().maxPlayers;
-            await relayManager.StartHostWithRelay(maxPlayers, connectionType);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error trying to connect the host with Relay: {e}");
-            hostButton.enabled = true;
-            initButtons.SetActive(true);
-        }
+            hostButton.interactable = false;
 
+            int maxPlayers = NetworkManager.Singleton
+                .GetComponent<ConnectionApprovalHandler>()
+                .maxPlayers;
+
+            string code = await relayManager.StartHostWithRelay(
+                Mathf.Max(1, maxPlayers - 1),
+                connectionType
+            );
+
+            if (string.IsNullOrEmpty(code) ||
+                !NetworkManager.Singleton.IsHost)
+            {
+                throw new Exception("No se pudo iniciar el Host.");
+            }
+
+            codigoGenerado.text = "Codigo: " + code;
+            codigoGenerado.gameObject.SetActive(true);
+
+            OcultarPaneles();
+
+            Debug.Log("Partida creada correctamente: " + code);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error creando partida: " + e);
+            hostButton.interactable = true;
+        }
     }
 
     public async void OnStartClientClickAsync()
     {
         try
         {
-            clientButton.enabled = false;
-            joinButtons.SetActive(false);
-            string cleanCode = hostCode.text.Trim().Replace("\u200B", "");
-            Debug.Log($"Intentando conectar con código puro: '{cleanCode}' | Longitud: {cleanCode.Length}");
-            await relayManager.StartClientWithRelay(cleanCode, connectionType);
+            joinPartyButton.interactable = false;
+
+            string code = codigoIntroducido.text
+                .Trim()
+                .ToUpperInvariant();
+
+            if (string.IsNullOrEmpty(code))
+                throw new Exception("Introduce un codigo.");
+
+            bool started = await relayManager.StartClientWithRelay(
+                code,
+                connectionType
+            );
+
+            if (!started)
+                throw new Exception("No se pudo iniciar el cliente.");
+
+            // Esperar a que Netcode confirme la conexion
+            float timeout = Time.realtimeSinceStartup + 15f;
+
+            while (!NetworkManager.Singleton.IsConnectedClient &&
+                   Time.realtimeSinceStartup < timeout)
+            {
+                await System.Threading.Tasks.Task.Yield();
+            }
+
+            if (!NetworkManager.Singleton.IsConnectedClient)
+            {
+                throw new Exception(
+                    "No se pudo conectar al Host."
+                );
+            }
+
+            // Conexion confirmada: ocultar ambos paneles
+            OcultarPaneles();
+
+            Debug.Log("Cliente conectado correctamente mediante Relay.");
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            Debug.LogError($"Error trying to connect the client with Relay: {e}");
-            clientButton.enabled = true;
-            joinButtons.SetActive(true);
+            Debug.LogError("Error uniendose: " + e);
+            joinPartyButton.interactable = true;
         }
     }
 
-    public void OnStartServerClick()
+    private void OcultarPaneles()
     {
-        NetworkManager.Singleton.StartServer();
+        initButtons.SetActive(false);
+        joinButtons.SetActive(false);
     }
 
     private void ToggleButtons()
     {
         toggleButtons = !toggleButtons;
+
         initButtons.SetActive(!toggleButtons);
         joinButtons.SetActive(toggleButtons);
-
     }
-
-
 }
