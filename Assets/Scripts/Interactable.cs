@@ -117,31 +117,28 @@ public class Interactable : NetworkBehaviour
         }
     }
 
-    private Material ObtenerMaterial(ulong clientId)
-    {
-        switch (clientId)
-        {
-            case 0:
-                return materialJugador1;
 
+    private Material ObtenerMaterial(ulong roleId)
+    {
+        switch (roleId)
+        {
             case 1:
-                return materialJugador2;
+                return materialJugador1; // Rojo
 
             case 2:
-                return materialJugador3;
+                return materialJugador2; // Azul
 
             case 3:
-                return materialJugador4;
+                return materialJugador3; // Verde
+
+            case 4:
+                return materialJugador4; // Amarillo
 
             default:
-                Debug.LogWarning(
-                    "No hay material configurado para ClientId: " +
-                    clientId
-                );
-
                 return null;
         }
     }
+
 
     private IEnumerator DestroyAfterTime()
     {

@@ -62,11 +62,20 @@ public class PlayerInteractor : NetworkBehaviour
             " | MI ID: " + NetworkManager.Singleton.LocalClientId
         );
 
-        if (i.taskId.Value != NetworkManager.Singleton.LocalClientId)
-        {
-            Debug.LogWarning("ESTA TAREA NO ES MIA");
+        if (RoleManager.Instance == null)
             return;
-        }
+
+        ulong localId = NetworkManager.Singleton.LocalClientId;
+
+        RoleManager.Role myRole =
+            RoleManager.Instance.GetRole(localId);
+
+        if (!RoleManager.Instance.IsPlayerReady(localId))
+            return;
+
+        if (myRole == RoleManager.Role.None ||
+            i.taskId.Value != (ulong)myRole)
+            return;
 
         Debug.Log("TAREA DETECTADA CORRECTAMENTE");
 
@@ -198,19 +207,35 @@ public class PlayerInteractor : NetworkBehaviour
         }
     }
 
+
     [ServerRpc]
     private void InteractuarServerRpc(
         NetworkObjectReference interactableReference,
         ServerRpcParams serverRpcParams = default)
     {
-        if (interactableReference.TryGet(out NetworkObject netObj) &&
-            netObj.TryGetComponent(out Interactable i))
+        if (RoleManager.Instance == null)
+            return;
+
+        ulong clientId =
+            serverRpcParams.Receive.SenderClientId;
+
+        RoleManager.Role playerRole =
+            RoleManager.Instance.GetRole(clientId);
+
+        if (playerRole == RoleManager.Role.None ||
+            !RoleManager.Instance.IsPlayerReady(clientId))
+            return;
+
+        if (interactableReference.TryGet(
+            out NetworkObject netObj) &&
+            netObj.TryGetComponent(out Interactable task))
         {
-            if (i.taskId.Value == serverRpcParams.Receive.SenderClientId)
+            if (task.taskId.Value == (ulong)playerRole)
             {
-                i.InteractuarNet();
+                task.InteractuarNet();
             }
         }
     }
+
 
 }

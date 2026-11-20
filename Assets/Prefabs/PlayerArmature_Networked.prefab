@@ -375,6 +375,7 @@ GameObject:
   - component: {fileID: 1514356887726118867}
   - component: {fileID: 716554953677607470}
   - component: {fileID: 861778825937702351}
+  - component: {fileID: 1011696772527550148}
   m_Layer: 8
   m_Name: PlayerArmature_Networked
   m_TagString: Player
@@ -808,6 +809,25 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   punchPoint: {fileID: 2443699996915939593}
+--- !u!114 &1011696772527550148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1799843532389728797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf7ccc7ba70bc04bb4eebeb296633ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRoleMaterial
+  ShowTopMostFoldoutHeaderGroup: 1
+  renderersPersonaje:
+  - {fileID: 6778174550570390075}
+  materialRojo: {fileID: 2100000, guid: 90941841ccf3daa4ea0046796586c756, type: 2}
+  materialAzul: {fileID: 2100000, guid: 2c21a6fbaf2089c4d8eda3523b5a67b1, type: 2}
+  materialVerde: {fileID: 2100000, guid: 3543a36ba807c8f45ad45ac6a8541775, type: 2}
+  materialAmarillo: {fileID: 2100000, guid: 77c9a7555ffdb0c4881c3a39b1a1effa, type: 2}
 --- !u!1 &1876584082386406989
 GameObject:
   m_ObjectHideFlags: 0

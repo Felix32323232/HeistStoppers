@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,32 +7,47 @@ public class LobbyManager : NetworkBehaviour
 {
     public static LobbyManager Instance { get; private set; }
 
-    [SerializeField] int requiredPlayers = 2;
-    [SerializeField] bool keepOpenOnceUnlocked = true;
-    [SerializeField] GameObject door;        // barrera con collider que cierra la sala
-    [SerializeField] TMP_Text counterText;   // opcional: "1/2"
+    [Header("Configuración")]
+    [SerializeField] private int requiredPlayers = 2;
 
-    public NetworkVariable<int> connectedCount = new(0); //num de jugadores online
-    public NetworkVariable<bool> unlocked = new(false); //variable netcode
+    [Header("Objetos")]
+    [SerializeField] private GameObject door;
 
-    readonly Dictionary<ulong, int> ids = new();
+    [Header("Interfaz")]
+    [SerializeField] private TMP_Text counterText;
 
-    void Awake() => Instance = this;
+    public NetworkVariable<int> connectedCount = new(
+        0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
+    public NetworkVariable<bool> unlocked = new(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     public override void OnNetworkSpawn()
     {
         connectedCount.OnValueChanged += OnCountChanged;
         unlocked.OnValueChanged += OnUnlockedChanged;
-        RefreshUI();
-        ApplyDoor(unlocked.Value);   // para quien entra tarde
 
-        if (!IsServer) return;
+        RefreshUI();
+        ApplyDoor(unlocked.Value);
+
+        if (!IsServer)
+            return;
 
         NetworkManager.OnClientConnectedCallback += HandleConnected;
         NetworkManager.OnClientDisconnectCallback += HandleDisconnected;
 
-        // el host (y cualquiera ya conectado) puede haberse conectado antes de que existiera el lobby
-        foreach (var clientId in NetworkManager.ConnectedClientsIds)
+        foreach (ulong clientId in NetworkManager.ConnectedClientsIds)
             HandleConnected(clientId);
     }
 
@@ -49,67 +63,73 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
-    void HandleConnected(ulong clientId)
+    private void Update()
     {
-        if (ids.ContainsKey(clientId)) return;
+        if (!IsServer || unlocked.Value)
+            return;
 
-        int id = NextFreeId();
-        ids[clientId] = id;
-        StartCoroutine(AssignWhenReady(clientId, id));
-        UpdateLobbyState();
-    }
+        if (RoleManager.Instance == null ||
+            !RoleManager.Instance.IsSpawned)
+            return;
 
-    void HandleDisconnected(ulong clientId)
-    {
-        if (ids.Remove(clientId))
-            UpdateLobbyState();
-    }
+        connectedCount.Value =
+            NetworkManager.ConnectedClientsIds.Count;
 
-    // el id 0 queda como "sin asignar" (es el valor por defecto de la NetworkVariable)
-    int NextFreeId()
-    {
-        int id = 1;
-        while (ids.ContainsValue(id)) id++;
-        return id;
-    }
-
-    IEnumerator AssignWhenReady(ulong clientId, int id)
-    {
-        // el PlayerObject puede tardar un instante en existir
-        while (ids.ContainsKey(clientId))
+        // RoleManager comprueba que todos tienen rol
+        // y han pulsado Listo.
+        if (connectedCount.Value >= requiredPlayers &&
+            RoleManager.Instance.gameStarted.Value)
         {
-            if (NetworkManager.ConnectedClients.TryGetValue(clientId, out var client)
-                && client.PlayerObject != null)
-         
-            {
-               
-                yield break;
-            }
-            yield return null;
+            unlocked.Value = true;
+
+            Debug.Log(
+                "Todos los jugadores están listos. " +
+                "¡Partida iniciada!"
+            );
         }
     }
 
-    void UpdateLobbyState()
+    private void HandleConnected(ulong clientId)
     {
-        connectedCount.Value = ids.Count;
-
-        if (!unlocked.Value && ids.Count >= requiredPlayers)
-            unlocked.Value = true;
-        else if (unlocked.Value && !keepOpenOnceUnlocked && ids.Count < requiredPlayers)
-            unlocked.Value = false;
+        UpdateConnectedCount();
     }
 
-    void OnCountChanged(int _, int __) => RefreshUI();
-    void OnUnlockedChanged(bool _, bool open) => ApplyDoor(open);
+    private void HandleDisconnected(ulong clientId)
+    {
+        UpdateConnectedCount();
+    }
 
-    void RefreshUI()
+    private void UpdateConnectedCount()
+    {
+        if (!IsServer)
+            return;
+
+        connectedCount.Value =
+            NetworkManager.ConnectedClientsIds.Count;
+    }
+
+    private void OnCountChanged(int previous, int current)
+    {
+        RefreshUI();
+    }
+
+    private void OnUnlockedChanged(bool previous, bool current)
+    {
+        ApplyDoor(current);
+    }
+
+    private void RefreshUI()
     {
         if (counterText != null)
-            counterText.text = $"{connectedCount.Value}/{requiredPlayers}";
+        {
+            counterText.text =
+                $"{connectedCount.Value}/{requiredPlayers}";
+        }
     }
 
-    void ApplyDoor(bool open)
+    private void ApplyDoor(bool open)
     {
-        if (door != null) door.SetActive(!open);
+        if (door != null)
+            door.SetActive(!open);
     }
 }

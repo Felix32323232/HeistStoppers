@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -25,7 +26,13 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private TMP_Text codigoGenerado;
     [SerializeField] private TMP_InputField codigoIntroducido;
 
+    [Header("Sonido Create Lobby")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip createLobbySound;
+    [SerializeField] private float duracionSonido = 1f;
+
     private bool toggleButtons = false;
+    private Coroutine rutinaSonido;
 
     private void OnEnable()
     {
@@ -43,11 +50,18 @@ public class LobbyUI : MonoBehaviour
         backButton.onClick.RemoveListener(ToggleButtons);
     }
 
+    // =====================================
+    // CREAR LOBBY
+    // =====================================
+
     public async void OnStartHostClickAsync()
     {
         try
         {
             hostButton.interactable = false;
+
+            // Reproducir sonido inmediatamente.
+            ReproducirSonidoCreateLobby();
 
             int maxPlayers = NetworkManager.Singleton
                 .GetComponent<ConnectionApprovalHandler>()
@@ -78,6 +92,10 @@ public class LobbyUI : MonoBehaviour
         }
     }
 
+    // =====================================
+    // UNIRSE A LOBBY
+    // =====================================
+
     public async void OnStartClientClickAsync()
     {
         try
@@ -99,7 +117,7 @@ public class LobbyUI : MonoBehaviour
             if (!started)
                 throw new Exception("No se pudo iniciar el cliente.");
 
-            // Esperar a que Netcode confirme la conexion
+            // Esperar a que Netcode confirme la conexion.
             float timeout = Time.realtimeSinceStartup + 15f;
 
             while (!NetworkManager.Singleton.IsConnectedClient &&
@@ -115,10 +133,12 @@ public class LobbyUI : MonoBehaviour
                 );
             }
 
-            // Conexion confirmada: ocultar ambos paneles
+            // Conexion confirmada.
             OcultarPaneles();
 
-            Debug.Log("Cliente conectado correctamente mediante Relay.");
+            Debug.Log(
+                "Cliente conectado correctamente mediante Relay."
+            );
         }
         catch (Exception e)
         {
@@ -126,6 +146,50 @@ public class LobbyUI : MonoBehaviour
             joinPartyButton.interactable = true;
         }
     }
+
+    // =====================================
+    // SONIDO CREATE LOBBY
+    // =====================================
+
+    private void ReproducirSonidoCreateLobby()
+    {
+        if (audioSource == null || createLobbySound == null)
+            return;
+
+        // Detener una rutina anterior si existe.
+        if (rutinaSonido != null)
+        {
+            StopCoroutine(rutinaSonido);
+            rutinaSonido = null;
+        }
+
+        audioSource.Stop();
+
+        audioSource.clip = createLobbySound;
+        audioSource.loop = false;
+
+        audioSource.Play();
+
+        rutinaSonido = StartCoroutine(
+            DetenerSonidoDespuesDeUnSegundo()
+        );
+    }
+
+    private IEnumerator DetenerSonidoDespuesDeUnSegundo()
+    {
+        yield return new WaitForSecondsRealtime(
+            duracionSonido
+        );
+
+        if (audioSource != null)
+            audioSource.Stop();
+
+        rutinaSonido = null;
+    }
+
+    // =====================================
+    // PANELES
+    // =====================================
 
     private void OcultarPaneles()
     {

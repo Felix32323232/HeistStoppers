@@ -226,7 +226,7 @@ MonoBehaviour:
   promptAnchor: {fileID: 7672348270387629947}
   renderersObjetivo:
   - {fileID: 3510920674990702391}
-  materialJugador1: {fileID: 2100000, guid: e6f6a08fac69fd941ba3863bc757dc75, type: 2}
-  materialJugador2: {fileID: 2100000, guid: 612556c54b353824399cbc63c118130f, type: 2}
-  materialJugador3: {fileID: 2100000, guid: eb28f338c99aa824884c6cb0d305488d, type: 2}
+  materialJugador1: {fileID: 2100000, guid: eb28f338c99aa824884c6cb0d305488d, type: 2}
+  materialJugador2: {fileID: 2100000, guid: e6f6a08fac69fd941ba3863bc757dc75, type: 2}
+  materialJugador3: {fileID: 2100000, guid: 612556c54b353824399cbc63c118130f, type: 2}
   materialJugador4: {fileID: 2100000, guid: 41b6b3af471600e4cb2bb210c1e082dd, type: 2}

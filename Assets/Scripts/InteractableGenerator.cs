@@ -134,21 +134,26 @@ public class InteractableGenerator : NetworkBehaviour
         ];
     }
 
-    private bool ElegirJugador(out ulong selectedId)
+
+    private bool ElegirRol(out ulong selectedRole)
     {
-        selectedId = 0;
+        selectedRole = 0;
 
-        var connectedIds =
-            NetworkManager.Singleton.ConnectedClientsIds;
-
-        if (connectedIds.Count == 0)
+        if (RoleManager.Instance == null)
             return false;
 
         int minTasks = int.MaxValue;
         List<ulong> candidates = new List<ulong>();
 
-        foreach (ulong clientId in connectedIds)
+        foreach (var player in RoleManager.Instance.players)
         {
+            // Solo asignar tareas a jugadores preparados.
+            if (!player.Ready ||
+                player.SelectedRole == RoleManager.Role.None)
+                continue;
+
+            ulong roleId = (ulong)player.SelectedRole;
+
             int count = 0;
 
             foreach (NetworkObject obj in ocupantes)
@@ -157,7 +162,7 @@ public class InteractableGenerator : NetworkBehaviour
                     continue;
 
                 if (obj.TryGetComponent(out Interactable task) &&
-                    task.taskId.Value == clientId)
+                    task.taskId.Value == roleId)
                 {
                     count++;
                 }
@@ -167,28 +172,28 @@ public class InteractableGenerator : NetworkBehaviour
             {
                 minTasks = count;
                 candidates.Clear();
-                candidates.Add(clientId);
+                candidates.Add(roleId);
             }
             else if (count == minTasks)
             {
-                candidates.Add(clientId);
+                candidates.Add(roleId);
             }
         }
 
         if (candidates.Count == 0)
             return false;
 
-        selectedId = candidates[
+        selectedRole = candidates[
             Random.Range(0, candidates.Count)
         ];
 
         return true;
     }
 
+
     private void GenerarTarea(int index)
     {
-        if (!ElegirJugador(out ulong playerId))
-            return;
+        if (!ElegirRol(out ulong roleId)) return;
 
         InteractableSpawnPoint point = spawnPoints[index];
 
@@ -217,7 +222,7 @@ public class InteractableGenerator : NetworkBehaviour
         }
 
         // El servidor establece el propietario de la tarea.
-        task.taskId.Value = playerId;
+        task.taskId.Value = roleId;
         task.spawnPointIndex.Value = index;
         // El prefab determina el tipo de interacción.
         // Cada prefab debe tener configurado su tipo.
@@ -227,9 +232,9 @@ public class InteractableGenerator : NetworkBehaviour
         point.SetTaskActive();
 
         Debug.Log(
-            $"Tarea generada en {point.name}, " +
-            $"jugador {playerId}, tipo {task.type}"
-        );
+    $"Tarea generada en {point.name}, " +
+    $"rol {roleId}, tipo {task.type}"
+);
     }
 
     private void ActualizarTareasFinalizadas()

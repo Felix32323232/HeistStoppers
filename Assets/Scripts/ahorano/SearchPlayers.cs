@@ -8,22 +8,25 @@ public class SearchPlayers : NetworkBehaviour
     [Header("Configuración")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Q;
 
-    [Header("Resaltado de jugadores")]
+    [Header("Material de resaltado")]
     [SerializeField] private Material highlightMaterial;
-    [SerializeField] private Color highlightColor = Color.cyan;
 
-    [Header("Resaltado de interactuables")]
-    [SerializeField] private Material interactableHighlightMaterial;
-    [SerializeField] private Color interactableHighlightColor = Color.yellow;
+    [Header("Colores por rol")]
+    [SerializeField] private Color colorRojo = Color.red;
+    [SerializeField] private Color colorAzul = Color.blue;
+    [SerializeField] private Color colorVerde = Color.green;
+    [SerializeField] private Color colorAmarillo = Color.yellow;
 
     private bool tracking = false;
     private InteractableGenerator generator;
+    private RoleManager roleManager;
 
     private class HighlightVisual
     {
         public Renderer[] renderers;
         public Material[][] originalMaterials;
         public Material materialInstance;
+        public RoleManager.Role role;
     }
 
     private Dictionary<ulong, HighlightVisual> highlightedPlayers =
@@ -41,12 +44,16 @@ public class SearchPlayers : NetworkBehaviour
         }
 
         generator = FindFirstObjectByType<InteractableGenerator>();
+        roleManager = RoleManager.Instance;
     }
 
     private void Update()
     {
         if (!IsOwner)
             return;
+
+        if (roleManager == null)
+            roleManager = RoleManager.Instance;
 
         if (Input.GetKeyDown(toggleKey))
         {
@@ -65,7 +72,8 @@ public class SearchPlayers : NetworkBehaviour
             }
         }
 
-        if (!tracking)
+        if (!tracking || roleManager == null ||
+            !roleManager.IsSpawned)
             return;
 
         UpdatePlayers();
@@ -88,31 +96,49 @@ public class SearchPlayers : NetworkBehaviour
         {
             NetworkObject playerObject = client.PlayerObject;
 
-            if (playerObject == null)
+            if (playerObject == null || !playerObject.IsSpawned)
                 continue;
 
+            // No resaltar nuestro propio personaje.
             if (playerObject.OwnerClientId == OwnerClientId)
                 continue;
 
             ulong id = playerObject.OwnerClientId;
+
+            RoleManager.Role playerRole =
+                roleManager.GetRole(id);
+
+            if (playerRole == RoleManager.Role.None)
+                continue;
+
             activePlayers.Add(id);
 
-            if (!highlightedPlayers.ContainsKey(id))
+            // Si ya está resaltado, comprobar
+            // si ha cambiado de rol.
+            if (highlightedPlayers.TryGetValue(
+                id, out HighlightVisual existing))
             {
-                Renderer[] renderers =
-                    playerObject.GetComponentsInChildren<Renderer>(true);
+                if (existing.role == playerRole)
+                    continue;
 
-                HighlightVisual visual = CreateHighlight(
-                    renderers,
-                    highlightMaterial,
-                    highlightColor
-                );
-
-                if (visual != null)
-                    highlightedPlayers.Add(id, visual);
+                RestoreHighlight(existing);
+                highlightedPlayers.Remove(id);
             }
+
+            Renderer[] renderers =
+                playerObject.GetComponentsInChildren<Renderer>(true);
+
+            HighlightVisual visual = CreateHighlight(
+                renderers,
+                playerRole
+            );
+
+            if (visual != null)
+                highlightedPlayers.Add(id, visual);
         }
 
+        // Eliminar resaltados de jugadores
+        // desconectados o sin rol.
         List<ulong> toRemove = new List<ulong>();
 
         foreach (var pair in highlightedPlayers)
@@ -142,18 +168,37 @@ public class SearchPlayers : NetworkBehaviour
                 return;
         }
 
+        if (NetworkManager.Singleton == null)
+            return;
+
+        ulong localId =
+            NetworkManager.Singleton.LocalClientId;
+
+        RoleManager.Role myRole =
+            roleManager.GetRole(localId);
+
+        // Si todavía no tenemos rol,
+        // eliminar cualquier resaltado anterior.
+        if (myRole == RoleManager.Role.None)
+        {
+            HideAllInteractables();
+            return;
+        }
+
         HashSet<int> activePoints = new HashSet<int>();
 
         Interactable[] tasks =
-            FindObjectsByType<Interactable>(FindObjectsSortMode.None);
+            FindObjectsByType<Interactable>(
+                FindObjectsSortMode.None
+            );
 
         foreach (Interactable task in tasks)
         {
             if (!task.IsSpawned)
                 continue;
 
-            // Solo tareas asignadas a este jugador.
-            if (task.taskId.Value != OwnerClientId)
+            // Solo mostrar tareas de nuestro rol.
+            if (task.taskId.Value != (ulong)myRole)
                 continue;
 
             int index = task.spawnPointIndex.Value;
@@ -169,13 +214,21 @@ public class SearchPlayers : NetworkBehaviour
 
             activePoints.Add(index);
 
-            if (highlightedInteractables.ContainsKey(index))
-                continue;
+            if (highlightedInteractables.TryGetValue(
+                index, out HighlightVisual existing))
+            {
+                // Si el rol no ha cambiado,
+                // mantener el resaltado.
+                if (existing.role == myRole)
+                    continue;
+
+                RestoreHighlight(existing);
+                highlightedInteractables.Remove(index);
+            }
 
             HighlightVisual visual = CreateHighlight(
                 point.ObjectRenderers,
-                interactableHighlightMaterial,
-                interactableHighlightColor
+                myRole
             );
 
             if (visual != null)
@@ -183,12 +236,14 @@ public class SearchPlayers : NetworkBehaviour
                 highlightedInteractables.Add(index, visual);
 
                 Debug.Log(
-                    "Interactuable resaltado: " + point.name
+                    "Tarea resaltada: " + point.name +
+                    " | Rol: " + myRole
                 );
             }
         }
 
-        // Restaurar objetos cuyas tareas terminaron.
+        // Restaurar máquinas cuya tarea
+        // terminó o ya no pertenece a nuestro rol.
         List<int> toRemove = new List<int>();
 
         foreach (var pair in highlightedInteractables)
@@ -199,7 +254,10 @@ public class SearchPlayers : NetworkBehaviour
 
         foreach (int index in toRemove)
         {
-            RestoreHighlight(highlightedInteractables[index]);
+            RestoreHighlight(
+                highlightedInteractables[index]
+            );
+
             highlightedInteractables.Remove(index);
         }
     }
@@ -210,10 +268,9 @@ public class SearchPlayers : NetworkBehaviour
 
     private HighlightVisual CreateHighlight(
         Renderer[] renderers,
-        Material sourceMaterial,
-        Color color)
+        RoleManager.Role role)
     {
-        if (sourceMaterial == null ||
+        if (highlightMaterial == null ||
             renderers == null ||
             renderers.Length == 0)
         {
@@ -223,12 +280,28 @@ public class SearchPlayers : NetworkBehaviour
         HighlightVisual visual = new HighlightVisual();
 
         visual.renderers = renderers;
-        visual.originalMaterials = new Material[renderers.Length][];
+        visual.originalMaterials =
+            new Material[renderers.Length][];
 
-        // Una instancia independiente para no modificar
-        // el material original del proyecto.
-        visual.materialInstance = new Material(sourceMaterial);
+        visual.role = role;
+
+        // Crear una instancia independiente
+        // del material de resaltado.
+        visual.materialInstance =
+            new Material(highlightMaterial);
+
+        Color color = GetRoleColor(role);
+
         visual.materialInstance.color = color;
+
+        // Compatibilidad con materiales URP.
+        if (visual.materialInstance.HasProperty("_BaseColor"))
+        {
+            visual.materialInstance.SetColor(
+                "_BaseColor",
+                color
+            );
+        }
 
         for (int i = 0; i < renderers.Length; i++)
         {
@@ -237,20 +310,45 @@ public class SearchPlayers : NetworkBehaviour
             if (rend == null)
                 continue;
 
-            visual.originalMaterials[i] = rend.sharedMaterials;
+            visual.originalMaterials[i] =
+                rend.sharedMaterials;
 
             Material[] newMaterials =
-                new Material[visual.originalMaterials[i].Length];
+                new Material[
+                    visual.originalMaterials[i].Length
+                ];
 
             for (int j = 0; j < newMaterials.Length; j++)
             {
-                newMaterials[j] = visual.materialInstance;
+                newMaterials[j] =
+                    visual.materialInstance;
             }
 
             rend.sharedMaterials = newMaterials;
         }
 
         return visual;
+    }
+
+    private Color GetRoleColor(RoleManager.Role role)
+    {
+        switch (role)
+        {
+            case RoleManager.Role.Red:
+                return colorRojo;
+
+            case RoleManager.Role.Blue:
+                return colorAzul;
+
+            case RoleManager.Role.Green:
+                return colorVerde;
+
+            case RoleManager.Role.Yellow:
+                return colorAmarillo;
+
+            default:
+                return Color.white;
+        }
     }
 
     private void RestoreHighlight(HighlightVisual visual)
@@ -266,12 +364,17 @@ public class SearchPlayers : NetworkBehaviour
                 visual.originalMaterials[i] == null)
                 continue;
 
-            rend.sharedMaterials = visual.originalMaterials[i];
+            rend.sharedMaterials =
+                visual.originalMaterials[i];
         }
 
         if (visual.materialInstance != null)
             Destroy(visual.materialInstance);
     }
+
+    // =====================================
+    // LIMPIEZA
+    // =====================================
 
     private void HideAllPlayers()
     {
