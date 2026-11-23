@@ -8,16 +8,16 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Exercise.unity
     guid: fb3a453f9d604404e87b06cf3928da42
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Lobby.unity
     guid: 9ef6eaf5cf8a87c4ba8f5788f886c31a
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Sercher.unity
     guid: c3582536f9c7da344a7351ff4ee6bea9
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Sercher 1.unity
     guid: 396dcbfef79029c42bcf93834107b600
   - enabled: 1
