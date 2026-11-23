@@ -639,7 +639,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2392477903
+  GlobalObjectIdHash: 1510027669
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -787,9 +787,10 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   toggleKey: 113
   highlightMaterial: {fileID: 2100000, guid: 28d743a3d1fe5b7468af470b8ea56868, type: 2}
-  highlightColor: {r: 0, g: 1, b: 1, a: 1}
-  interactableHighlightMaterial: {fileID: 2100000, guid: 28d743a3d1fe5b7468af470b8ea56868, type: 2}
-  interactableHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorRojo: {r: 1, g: 0, b: 0, a: 1}
+  colorAzul: {r: 0, g: 0, b: 1, a: 1}
+  colorVerde: {r: 0, g: 1, b: 0, a: 1}
+  colorAmarillo: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!114 &861778825937702351
 MonoBehaviour:
   m_ObjectHideFlags: 0
