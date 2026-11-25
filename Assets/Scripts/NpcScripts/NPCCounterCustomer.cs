@@ -37,6 +37,11 @@ public class NPCCounterCustomer : NPCBase
         state = State.Queueing;
     }
 
+    public void AddPatience(float seconds)
+    {
+        if (!IsServer || state != State.AtWindow) return;
+        waitStart += seconds;
+    }
     protected override void OnServerTick()
     {
         switch (state)

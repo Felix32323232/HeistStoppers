@@ -126,6 +126,9 @@ public class PlayerInteractor : NetworkBehaviour
 
     void UpdateHold()
     {
+        float mult = TryGetComponent(out BlueRoleAbility blue) ? blue.GetTaskSpeedMultiplier() : 1f;
+        held += Time.deltaTime * mult;
+
         if (Input.GetKey(interactKey))
         {
             held += Time.deltaTime;

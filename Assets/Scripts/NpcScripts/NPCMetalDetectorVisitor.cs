@@ -46,7 +46,11 @@ public class NPCMetalDetectorVisitor : NPCBase
         d.queue.Join(this);
         state = State.Queueing;
     }
-
+    public void AddFriskPatience(float seconds)
+    {
+        if (!IsServer || state != State.Frisking) return;
+        friskStart += seconds;
+    }
     protected override void OnServerTick()
     {
         MetalDetector d = Detector;

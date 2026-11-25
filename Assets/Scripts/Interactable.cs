@@ -1,4 +1,3 @@
-
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -58,18 +57,24 @@ public class Interactable : NetworkBehaviour
 
     private Coroutine timerRoutine;
     private bool finished;
+    private int prefabPoolIndex = -1;
+
+    public int PrefabPoolIndex => prefabPoolIndex;
 
     public Vector3 PromptPosition =>
         promptAnchor != null
             ? promptAnchor.position
             : transform.position + Vector3.up * 1.5f;
 
+    public void SetPoolIndex(int index)
+    {
+        prefabPoolIndex = index;
+    }
+
     private void Reset()
     {
         GetComponent<Collider>().isTrigger = true;
-
-        renderersObjetivo =
-            GetComponentsInChildren<Renderer>(true);
+        renderersObjetivo = GetComponentsInChildren<Renderer>(true);
     }
 
     public override void OnNetworkSpawn()
@@ -82,6 +87,9 @@ public class Interactable : NetworkBehaviour
 
         if (IsServer)
         {
+            if (timerRoutine != null)
+                StopCoroutine(timerRoutine);
+
             timerRoutine = StartCoroutine(DestroyAfterTime());
         }
     }
@@ -95,11 +103,8 @@ public class Interactable : NetworkBehaviour
     {
         Material materialElegido = ObtenerMaterial(taskId.Value);
 
-        if (materialElegido == null ||
-            renderersObjetivo == null)
-        {
+        if (materialElegido == null || renderersObjetivo == null)
             return;
-        }
 
         foreach (Renderer rend in renderersObjetivo)
         {
@@ -117,28 +122,17 @@ public class Interactable : NetworkBehaviour
         }
     }
 
-
     private Material ObtenerMaterial(ulong roleId)
     {
         switch (roleId)
         {
-            case 1:
-                return materialJugador1; // Rojo
-
-            case 2:
-                return materialJugador2; // Azul
-
-            case 3:
-                return materialJugador3; // Verde
-
-            case 4:
-                return materialJugador4; // Amarillo
-
-            default:
-                return null;
+            case 1: return materialJugador1; // Rojo
+            case 2: return materialJugador2; // Azul
+            case 3: return materialJugador3; // Verde
+            case 4: return materialJugador4; // Amarillo
+            default: return null;
         }
     }
-
 
     private IEnumerator DestroyAfterTime()
     {
@@ -190,7 +184,8 @@ public class Interactable : NetworkBehaviour
             );
         }
 
-        NetworkObject.Despawn();
+        // Despawn(false) saca el objeto de la red SIN destruirlo para devolverlo al pool
+        NetworkObject.Despawn(false);
     }
 
     public override void OnNetworkDespawn()
@@ -206,8 +201,7 @@ public class Interactable : NetworkBehaviour
 
     public void contadormas()
     {
-        if (IsServer &&
-            ManagerPuntuacion.Instance != null)
+        if (IsServer && ManagerPuntuacion.Instance != null)
         {
             ManagerPuntuacion.Instance.Sumar();
         }

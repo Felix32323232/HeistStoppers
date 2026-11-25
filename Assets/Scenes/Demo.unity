@@ -7674,6 +7674,7 @@ MonoBehaviour:
   - {fileID: 6687838828540537697, guid: afbce88e79bbdd64183a8e9b59a5d6ed, type: 3}
   - {fileID: 6687838828540537697, guid: e622ae79d1658124e9bfb383cc08a342, type: 3}
   - {fileID: 3731022443811292966, guid: 88a9d7786e11c364489d9305c7eb5c4d, type: 3}
+  initialPoolSizePerPrefab: 3
   maxActiveTasks: 5
   tSpawnMin: 5
   tSpawnMax: 5
@@ -54576,7 +54577,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoleManager
   ShowTopMostFoldoutHeaderGroup: 1
-  minimumPlayers: 2
+  minimumPlayers: 1
   gameStarted:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -59950,6 +59951,9 @@ GameObject:
   - component: {fileID: 1819108696}
   - component: {fileID: 1819108697}
   - component: {fileID: 1819108699}
+  - component: {fileID: 1819108702}
+  - component: {fileID: 1819108701}
+  - component: {fileID: 1819108700}
   m_Layer: 0
   m_Name: RedScurityCameras
   m_TagString: Untagged
@@ -60035,6 +60039,58 @@ MonoBehaviour:
   cameraPoint2: {fileID: 0}
   cameraPoint3: {fileID: 0}
   cameraPoint4: {fileID: 0}
+--- !u!114 &1819108700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819108695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c54d254a8b3724e87c26d61bd52773, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YellowRoleAbility
+  ShowTopMostFoldoutHeaderGroup: 1
+  abilityKey: 102
+  radius: 5
+  cooldown: 14
+  punchRangeBonus: 1.2
+--- !u!114 &1819108701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819108695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266c6e02f88fd44419cef6ecfed47ade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GreenRoleAbility
+  ShowTopMostFoldoutHeaderGroup: 1
+  abilityKey: 102
+  speedMultiplier: 1.65
+  duration: 4
+  cooldown: 12
+--- !u!114 &1819108702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819108695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7cbf11690bce7343ab1aa40eb268c08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlueRoleAbility
+  ShowTopMostFoldoutHeaderGroup: 1
+  abilityKey: 102
+  radius: 6
+  extraPatienceSeconds: 10
+  cooldown: 15
+  interactionSpeedMultiplier: 1.4
 --- !u!1001 &1819362338
 PrefabInstance:
   m_ObjectHideFlags: 0

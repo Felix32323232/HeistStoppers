@@ -1,4 +1,3 @@
-
 using Unity.Netcode;
 using UnityEngine;
 
@@ -11,6 +10,19 @@ public class PlayerPunch : NetworkBehaviour
 
     [Header("Punto de golpe")]
     [SerializeField] private Transform punchPoint;
+
+    private YellowRoleAbility yellowAbility;
+
+    private void Awake()
+    {
+        yellowAbility = GetComponent<YellowRoleAbility>();
+    }
+
+    private float GetEffectiveRange()
+    {
+        float bonus = yellowAbility != null ? yellowAbility.GetExtraPunchRange() : 0f;
+        return range + bonus;
+    }
 
     private void Update()
     {
@@ -33,11 +45,13 @@ public class PlayerPunch : NetworkBehaviour
         direction.y = 0f;
         direction.Normalize();
 
+        float effectiveRange = GetEffectiveRange();
+
         if (Physics.Raycast(
             origin,
             direction,
             out RaycastHit hit,
-            range,
+            effectiveRange,
             hitLayers,
             QueryTriggerInteraction.Ignore))
         {
@@ -73,8 +87,10 @@ public class PlayerPunch : NetworkBehaviour
         Vector3 difference =
             npcObject.transform.position - origin;
 
+        float effectiveRange = GetEffectiveRange();
+
         // Validar distancia y dirección también en el servidor.
-        if (difference.magnitude > range + 0.5f)
+        if (difference.magnitude > effectiveRange + 0.5f)
             return;
 
         Vector3 forward = transform.forward;
