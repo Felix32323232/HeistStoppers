@@ -54576,7 +54576,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoleManager
   ShowTopMostFoldoutHeaderGroup: 1
-  minimumPlayers: 2
+  minimumPlayers: 1
   gameStarted:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -58240,6 +58240,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 480330, guid: 61bb8d4e8c31dd044901d3a4baabe130, type: 3}
   m_PrefabInstance: {fileID: 1762069189}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1763983173
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1763983174}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1763983174
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763983173}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.2, y: 1.893, z: -12.639}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1765564165
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -59950,6 +59981,9 @@ GameObject:
   - component: {fileID: 1819108696}
   - component: {fileID: 1819108697}
   - component: {fileID: 1819108699}
+  - component: {fileID: 1819108702}
+  - component: {fileID: 1819108701}
+  - component: {fileID: 1819108700}
   m_Layer: 0
   m_Name: RedScurityCameras
   m_TagString: Untagged
@@ -60035,6 +60069,58 @@ MonoBehaviour:
   cameraPoint2: {fileID: 0}
   cameraPoint3: {fileID: 0}
   cameraPoint4: {fileID: 0}
+--- !u!114 &1819108700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819108695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c54d254a8b3724e87c26d61bd52773, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YellowRoleAbility
+  ShowTopMostFoldoutHeaderGroup: 1
+  abilityKey: 102
+  radius: 5
+  cooldown: 14
+  punchRangeBonus: 1.2
+--- !u!114 &1819108701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819108695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266c6e02f88fd44419cef6ecfed47ade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GreenRoleAbility
+  ShowTopMostFoldoutHeaderGroup: 1
+  abilityKey: 102
+  speedMultiplier: 1.65
+  duration: 4
+  cooldown: 12
+--- !u!114 &1819108702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819108695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7cbf11690bce7343ab1aa40eb268c08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlueRoleAbility
+  ShowTopMostFoldoutHeaderGroup: 1
+  abilityKey: 102
+  radius: 6
+  extraPatienceSeconds: 10
+  cooldown: 15
+  interactionSpeedMultiplier: 1.4
 --- !u!1001 &1819362338
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -71609,3 +71695,4 @@ SceneRoots:
   - {fileID: 1445481647}
   - {fileID: 1819108698}
   - {fileID: 1133578796}
+  - {fileID: 1763983174}

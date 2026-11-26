@@ -376,6 +376,7 @@ GameObject:
   - component: {fileID: 716554953677607470}
   - component: {fileID: 861778825937702351}
   - component: {fileID: 1011696772527550148}
+  - component: {fileID: 2079831768735996515}
   m_Layer: 8
   m_Name: PlayerArmature_Networked
   m_TagString: Player
@@ -639,7 +640,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1510027669
+  GlobalObjectIdHash: 2392477903
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -829,6 +830,20 @@ MonoBehaviour:
   materialAzul: {fileID: 2100000, guid: 2c21a6fbaf2089c4d8eda3523b5a67b1, type: 2}
   materialVerde: {fileID: 2100000, guid: 3543a36ba807c8f45ad45ac6a8541775, type: 2}
   materialAmarillo: {fileID: 2100000, guid: 77c9a7555ffdb0c4881c3a39b1a1effa, type: 2}
+--- !u!114 &2079831768735996515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1799843532389728797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45cb1df896abb1642bb955c3bbedc9dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawn
+  ShowTopMostFoldoutHeaderGroup: 1
+  spawnPosition: {x: -2.2, y: 1.9, z: -12.6}
 --- !u!1 &1876584082386406989
 GameObject:
   m_ObjectHideFlags: 0
