@@ -51,18 +51,17 @@ public class LobbyUI : MonoBehaviour
     }
 
     // =====================================
-    // CREAR LOBBY
+    // CREAR HOST
     // =====================================
 
     public async void OnStartHostClickAsync()
     {
+        hostButton.interactable = false;
+
+        ReproducirSonidoCreateLobby();
+
         try
         {
-            hostButton.interactable = false;
-
-            // Reproducir sonido inmediatamente.
-            ReproducirSonidoCreateLobby();
-
             int maxPlayers = NetworkManager.Singleton
                 .GetComponent<ConnectionApprovalHandler>()
                 .maxPlayers;
@@ -78,12 +77,16 @@ public class LobbyUI : MonoBehaviour
                 throw new Exception("No se pudo iniciar el Host.");
             }
 
-            codigoGenerado.text = "Codigo: " + code;
+            if (relayManager.UsarRelay)
+                codigoGenerado.text = "Codigo Relay: " + code;
+            else
+                codigoGenerado.text = "Partida local - Sin Relay";
+
             codigoGenerado.gameObject.SetActive(true);
 
-            OcultarPaneles();
+            Debug.Log("Host iniciado correctamente: " + code);
 
-            Debug.Log("Partida creada correctamente: " + code);
+            OcultarPaneles();
         }
         catch (Exception e)
         {
@@ -93,21 +96,23 @@ public class LobbyUI : MonoBehaviour
     }
 
     // =====================================
-    // UNIRSE A LOBBY
+    // UNIR CLIENTE
     // =====================================
 
     public async void OnStartClientClickAsync()
     {
+        joinPartyButton.interactable = false;
+
         try
         {
-            joinPartyButton.interactable = false;
-
             string code = codigoIntroducido.text
                 .Trim()
                 .ToUpperInvariant();
 
-            if (string.IsNullOrEmpty(code))
-                throw new Exception("Introduce un codigo.");
+            if (relayManager.UsarRelay && string.IsNullOrEmpty(code))
+            {
+                throw new Exception("Introduce un codigo Relay.");
+            }
 
             bool started = await relayManager.StartClientWithRelay(
                 code,
@@ -115,10 +120,12 @@ public class LobbyUI : MonoBehaviour
             );
 
             if (!started)
+            {
                 throw new Exception("No se pudo iniciar el cliente.");
+            }
 
-            // Esperar a que Netcode confirme la conexion.
-            float timeout = Time.realtimeSinceStartup + 15f;
+            // Esperar confirmacion de conexion.
+            float timeout = Time.realtimeSinceStartup + 20f;
 
             while (!NetworkManager.Singleton.IsConnectedClient &&
                    Time.realtimeSinceStartup < timeout)
@@ -129,16 +136,17 @@ public class LobbyUI : MonoBehaviour
             if (!NetworkManager.Singleton.IsConnectedClient)
             {
                 throw new Exception(
-                    "No se pudo conectar al Host."
+                    "No se pudo conectar con el Host."
                 );
             }
 
-            // Conexion confirmada.
-            OcultarPaneles();
-
             Debug.Log(
-                "Cliente conectado correctamente mediante Relay."
+                relayManager.UsarRelay
+                    ? "Cliente conectado mediante Relay."
+                    : "Cliente conectado mediante conexion local."
             );
+
+            OcultarPaneles();
         }
         catch (Exception e)
         {
@@ -148,7 +156,7 @@ public class LobbyUI : MonoBehaviour
     }
 
     // =====================================
-    // SONIDO CREATE LOBBY
+    // SONIDO
     // =====================================
 
     private void ReproducirSonidoCreateLobby()
@@ -156,7 +164,6 @@ public class LobbyUI : MonoBehaviour
         if (audioSource == null || createLobbySound == null)
             return;
 
-        // Detener una rutina anterior si existe.
         if (rutinaSonido != null)
         {
             StopCoroutine(rutinaSonido);
@@ -164,10 +171,8 @@ public class LobbyUI : MonoBehaviour
         }
 
         audioSource.Stop();
-
         audioSource.clip = createLobbySound;
         audioSource.loop = false;
-
         audioSource.Play();
 
         rutinaSonido = StartCoroutine(
@@ -177,9 +182,7 @@ public class LobbyUI : MonoBehaviour
 
     private IEnumerator DetenerSonidoDespuesDeUnSegundo()
     {
-        yield return new WaitForSecondsRealtime(
-            duracionSonido
-        );
+        yield return new WaitForSecondsRealtime(duracionSonido);
 
         if (audioSource != null)
             audioSource.Stop();
