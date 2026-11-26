@@ -13,6 +13,7 @@ public class NPCCounterCustomer : NPCBase
         "Quiero abrir una cuenta",
         "Quiero cambiar divisas",
         "Quiero ingresar un cheque",
+        "Alejandro Martinez porfavor tocame",
         "¿Cuál es mi saldo?"
     };
     [SerializeField] string servedLine = "¡Gracias!";
