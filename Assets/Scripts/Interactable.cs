@@ -144,6 +144,12 @@ public class Interactable : NetworkBehaviour
         FinishTask(false);
     }
 
+    // Por defecto, una tarea del pool solo la puede hacer el rol cuyo id coincide con taskId.
+    public virtual bool CanBeUsedBy(RoleManager.Role role)
+    {
+        return role != RoleManager.Role.None && taskId.Value == (ulong)role;
+    }
+
     public virtual void InteractuarNet()
     {
         if (!IsServer || finished || !IsSpawned)

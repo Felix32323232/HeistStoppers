@@ -10,7 +10,8 @@ public class NPCMetalDetectorVisitor : NPCBase
     [SerializeField] float metalChance = 0.5f;
     [Tooltip("Segundos que espera a que lo cacheen antes de colarse.")]
     [SerializeField] float friskPatience = 12f;
-    [SerializeField] string[] alarmLines =
+    [SerializeField]
+    string[] alarmLines =
     {
         "¡Son solo las llaves!",
         "Será la hebilla...",
@@ -120,6 +121,7 @@ public class NPCMetalDetectorVisitor : NPCBase
     {
         if (state != State.Frisking || IsLeaving) return;
 
+        SetServable(false);
         ScoreSuccess();
         hasMetal = false;
         Say(friskedLine);

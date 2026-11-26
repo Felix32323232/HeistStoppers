@@ -157,6 +157,7 @@ public abstract class NPCBase : NetworkBehaviour
         if (!NavMesh.SamplePosition(from, out NavMeshHit hit, radius, NavMesh.AllAreas)) return false;
         transform.position = hit.position;
         agent.enabled = true;
+        agent.Warp(hit.position);
         return agent.isOnNavMesh;
     }
 
@@ -263,7 +264,7 @@ public abstract class NPCBase : NetworkBehaviour
     {
         knocked = true;
         if (agent.enabled) agent.enabled = false;
-        rb.isKinematic = false;   // para que AddForce del golpe haga efecto
+        rb.isKinematic = false;
     }
 
     void OnRecovered()

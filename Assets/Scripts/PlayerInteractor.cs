@@ -8,6 +8,7 @@ public class PlayerInteractor : NetworkBehaviour
 
     InteractionUI ui;
     Interactable current;
+    Collider currentCollider;
     float held;
     bool completed;
     float needleAngle, zoneStart, zoneDeg;
@@ -73,13 +74,15 @@ public class PlayerInteractor : NetworkBehaviour
         if (!RoleManager.Instance.IsPlayerReady(localId))
             return;
 
-        if (myRole == RoleManager.Role.None ||
-            i.taskId.Value != (ulong)myRole)
+        // Un NPC no atendible tiene el componente desactivado; además cada tipo
+        // de Interactable decide qué roles lo pueden usar (pool: taskId, NPC: allowedRoles).
+        if (!i.isActiveAndEnabled || !i.CanBeUsedBy(myRole))
             return;
 
         Debug.Log("TAREA DETECTADA CORRECTAMENTE");
 
         current = i;
+        currentCollider = other;
         hasTarget = true;
         ResetHold();
         ui.Show(i.prompt);
@@ -89,6 +92,7 @@ public class PlayerInteractor : NetworkBehaviour
     void ClearCurrent()
     {
         current = null;
+        currentCollider = null;
         hasTarget = false;
         ResetHold();
         if (ui != null) ui.Hide();
@@ -97,7 +101,9 @@ public class PlayerInteractor : NetworkBehaviour
     void OnTriggerExit(Collider other)
     {
         if (!IsOwner || ui == null) return;
-        if (other.TryGetComponent(out Interactable i) && i == current)
+        // Solo se suelta al salir del collider con el que se entró
+        // (un NPC tiene cuerpo + zona de interacción y no queremos perderlo al salir del cuerpo).
+        if (current != null && other == currentCollider)
             ClearCurrent();
     }
 
@@ -127,11 +133,10 @@ public class PlayerInteractor : NetworkBehaviour
     void UpdateHold()
     {
         float mult = TryGetComponent(out BlueRoleAbility blue) ? blue.GetTaskSpeedMultiplier() : 1f;
-        held += Time.deltaTime * mult;
 
         if (Input.GetKey(interactKey))
         {
-            held += Time.deltaTime;
+            held += Time.deltaTime * mult;
             if (held >= current.holdTime) { Complete(); return; }
         }
         else held = 0f;
@@ -233,7 +238,7 @@ public class PlayerInteractor : NetworkBehaviour
             out NetworkObject netObj) &&
             netObj.TryGetComponent(out Interactable task))
         {
-            if (task.taskId.Value == (ulong)playerRole)
+            if (task.CanBeUsedBy(playerRole))
             {
                 task.InteractuarNet();
             }

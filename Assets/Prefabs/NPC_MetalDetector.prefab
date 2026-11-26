@@ -443,6 +443,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCInteractable
   ShowTopMostFoldoutHeaderGroup: 1
+  taskId:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  spawnPointIndex:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
   type: 0
   skillCheckRotationTime: 1.5
   skillCheckZoneSize: 0.12
@@ -454,13 +464,13 @@ MonoBehaviour:
   holdTime: 1.5
   destroyTime: 5
   promptAnchor: {fileID: 0}
-  requiredPlayerId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 1
+  renderersObjetivo: []
+  materialJugador1: {fileID: 0}
+  materialJugador2: {fileID: 0}
+  materialJugador3: {fileID: 0}
+  materialJugador4: {fileID: 0}
   assignedPlayerId: 0
-  verb: Atender
+  verb: Cachear
   interactionRadius: 1.6
   canBeServed:
     UpdateTraits:

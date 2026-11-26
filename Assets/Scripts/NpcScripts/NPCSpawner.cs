@@ -43,7 +43,12 @@ public class NPCSpawner : NetworkBehaviour
 
     IEnumerator SpawnLoop()
     {
+        if (BankLayout.Instance == null)
+            Debug.LogError("[NPCSpawner] No hay BankLayout en la escena: no saldrá ningún NPC. Usa el menú HeistStoppers > Configurar NPCs en la escena.", this);
+
+        Debug.Log("[NPCSpawner] Esperando a que el lobby se desbloquee (todos con rol y listos) para sacar NPCs...", this);
         yield return new WaitUntil(() => LobbyManager.Instance != null && LobbyManager.Instance.unlocked.Value);
+        Debug.Log("[NPCSpawner] Lobby desbloqueado, empiezan a salir NPCs.", this);
         yield return new WaitForSeconds(firstDelay);
 
         while (true)

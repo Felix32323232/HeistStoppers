@@ -4,8 +4,8 @@ using UnityEngine;
 public class NPCInteractable : Interactable
 {
     [Header("NPC")]
-    [Tooltip("0 = cualquier jugador puede atenderlo.")]
-    [SerializeField] int assignedPlayerId = 0;
+    [Tooltip("Roles que pueden atender a este NPC. Vacío = cualquier jugador que ya tenga rol y esté listo.")]
+    [SerializeField] RoleManager.Role[] allowedRoles;
     [Tooltip("Texto del prompt. Se le añade lo que diga el NPC: \"Atender: Quiero sacar dinero\".")]
     [SerializeField] string verb = "Atender";
     [SerializeField] float interactionRadius = 1.6f;
@@ -14,7 +14,6 @@ public class NPCInteractable : Interactable
 
     NPCBase npc;
     SphereCollider zone;
-
 
     void Reset() { }
 
@@ -34,6 +33,7 @@ public class NPCInteractable : Interactable
 
     public override void OnNetworkSpawn()
     {
+        // Sin base.OnNetworkSpawn(): el de Interactable arranca el temporizador de tareas del pool.
         canBeServed.OnValueChanged += OnServableChanged;
         Apply(canBeServed.Value);
     }
@@ -57,6 +57,18 @@ public class NPCInteractable : Interactable
     public void SetRequest(string text)
     {
         prompt = string.IsNullOrEmpty(text) ? verb : verb + ": " + text;
+    }
+
+    public override bool CanBeUsedBy(RoleManager.Role role)
+    {
+        if (role == RoleManager.Role.None) return false;
+        if (allowedRoles == null || allowedRoles.Length == 0) return true;
+
+        foreach (RoleManager.Role allowed in allowedRoles)
+        {
+            if (allowed == role) return true;
+        }
+        return false;
     }
 
     public override void InteractuarNet()
